@@ -154,23 +154,30 @@ export default function PaymentSection() {
                 <QrCode className="w-4 h-4" />
                 Scan QR Code to Pay
               </h3>
-              <div className="relative w-48 h-48 rounded-2xl bg-white flex items-center justify-center mb-4 group"
-                style={{ boxShadow: '0 0 0 1px rgba(245,166,35,0.4), 0 0 30px rgba(245,166,35,0.15)' }}
-              >
-                {/* Corner accents */}
-                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-yellow-500 rounded-tl-xl" />
-                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-yellow-500 rounded-tr-xl" />
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-yellow-500 rounded-bl-xl" />
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-yellow-500 rounded-br-xl" />
 
-                <div className="flex flex-col items-center gap-2 p-4">
-                  <QrCode className="w-20 h-20 text-black/80" strokeWidth={1.5} />
-                  <p className="text-black/60 font-inter text-[10px] font-medium leading-tight">Contact us on<br />Telegram for QR</p>
-                </div>
+              {/* Actual QR image */}
+              <div className="relative rounded-2xl overflow-hidden p-1 mb-4"
+                style={{ boxShadow: '0 0 0 1px rgba(245,166,35,0.5), 0 0 40px rgba(245,166,35,0.2)' }}
+              >
+                {/* Animated gold border pulse */}
+                <div className="absolute inset-0 rounded-2xl opacity-60" style={{ background: 'linear-gradient(135deg, rgba(245,166,35,0.3), transparent, rgba(245,166,35,0.3))', animation: 'borderPulse 2s ease-in-out infinite' }} />
+                {/* Corner accents */}
+                <div className="absolute top-0 left-0 w-7 h-7 border-t-2 border-l-2 border-yellow-400 rounded-tl-2xl z-10" />
+                <div className="absolute top-0 right-0 w-7 h-7 border-t-2 border-r-2 border-yellow-400 rounded-tr-2xl z-10" />
+                <div className="absolute bottom-0 left-0 w-7 h-7 border-b-2 border-l-2 border-yellow-400 rounded-bl-2xl z-10" />
+                <div className="absolute bottom-0 right-0 w-7 h-7 border-b-2 border-r-2 border-yellow-400 rounded-br-2xl z-10" />
+
+                <img
+                  src="/payment-qr.jpeg"
+                  alt="Scan to pay with any UPI app"
+                  className="relative w-56 h-56 sm:w-64 sm:h-64 object-cover rounded-xl"
+                />
               </div>
-              <p className="text-gray-400 font-inter text-xs max-w-[220px]">
-                Contact us on Telegram and we'll send you the payment QR code directly.
+
+              <p className="font-rajdhani text-sm font-bold text-yellow-400 uppercase tracking-widest mb-1">
+                Scan to Pay with Any UPI App
               </p>
+              <p className="text-gray-500 font-inter text-xs">UPI · PhonePe · Google Pay · Paytm</p>
             </div>
 
             {/* Screenshot upload */}
