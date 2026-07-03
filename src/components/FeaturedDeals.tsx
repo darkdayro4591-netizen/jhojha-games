@@ -17,7 +17,7 @@ const deals = [
   {
     id: 2,
     title: "Assassin's Creed Black Flag Resynced Pre-Order",
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/242050/library_600x900.jpg',
+    image: '/ac-black-flag-cover.jpeg',
     salePrice: 799,
     originalPrice: 4999,
     badge: 'SALE',
@@ -47,7 +47,7 @@ const deals = [
   {
     id: 5,
     title: "Assassin's Creed Black Flag Resynced",
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/242050/library_600x900.jpg',
+    image: '/ac-black-flag-cover.jpeg',
     salePrice: 299,
     originalPrice: 1999,
     badge: 'PRE-ORDER',

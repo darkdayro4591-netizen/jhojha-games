@@ -28,7 +28,7 @@ const posts = [
     label: 'Forza Horizon 5',
   },
   {
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/242050/library_600x900.jpg',
+    image: '/ac-black-flag-cover.jpeg',
     likes: '834',
     comments: '52',
     label: "AC Black Flag",

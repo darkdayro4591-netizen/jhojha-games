@@ -64,7 +64,7 @@ export const games: Game[] = [
     id: 5,
     title: "Assassin's Creed Black Flag Resynced Pre-Order",
     category: 'Open World',
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/242050/library_600x900.jpg',
+    image: '/ac-black-flag-cover.jpeg',
     salePrice: 799,
     originalPrice: 1499,
     discount: 47,

@@ -13,7 +13,7 @@ const categories = [
     icon: Globe,
     count: '8+ Games',
     description: 'Vast open worlds waiting to be explored',
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/242050/library_600x900.jpg',
+    image: '/ac-black-flag-cover.jpeg',
   },
   {
     name: 'Horror',
