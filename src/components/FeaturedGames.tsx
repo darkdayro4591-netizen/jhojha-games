@@ -19,7 +19,7 @@ export const games: Game[] = [
     id: 1,
     title: 'GTA VI Pre-Order Standard Edition',
     category: 'Action',
-    image: 'https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_VI_cover.jpg',
+    image: '/gta6-cover.jpeg',
     salePrice: 5999,
     originalPrice: 7999,
     discount: 25,

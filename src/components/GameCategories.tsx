@@ -6,7 +6,7 @@ const categories = [
     icon: Swords,
     count: '12+ Games',
     description: 'Explosive combat and adrenaline-pumping adventures',
-    image: 'https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_VI_cover.jpg',
+    image: '/gta6-cover.jpeg',
   },
   {
     name: 'Open World',

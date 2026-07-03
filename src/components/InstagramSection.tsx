@@ -4,7 +4,7 @@ const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0Z
 
 const posts = [
   {
-    image: 'https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_VI_cover.jpg',
+    image: '/gta6-cover.jpeg',
     likes: '1.2K',
     comments: '89',
     label: 'GTA VI',

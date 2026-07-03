@@ -7,7 +7,7 @@ const deals = [
   {
     id: 1,
     title: 'GTA VI Pre-Order Standard Edition',
-    image: 'https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_VI_cover.jpg',
+    image: '/gta6-cover.jpeg',
     salePrice: 5999,
     originalPrice: null,
     badge: 'PRE-ORDER',
