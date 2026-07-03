@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Search, ShoppingCart, Star, Instagram, Send, SlidersHorizontal } from 'lucide-react';
-import { games } from './FeaturedGames';
+import games from '../data/games';
 import type { CatalogEntry } from '../hooks/useSteamCatalog';
 import CheckoutModal from './CheckoutModal';
 
