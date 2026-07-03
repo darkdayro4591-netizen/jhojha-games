@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ShoppingCart, Star, Eye, X, ArrowRight } from 'lucide-react';
+import CheckoutModal from './CheckoutModal';
 
 export interface Game {
   id: number;
@@ -110,6 +111,7 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
     if (externalCategory) setActiveCategory(externalCategory);
   }, [externalCategory]);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [checkoutGame, setCheckoutGame] = useState<Game | null>(null);
 
   const filteredGames = useMemo(() => {
     return games.filter(g => {
@@ -234,15 +236,13 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
 
                   {/* Action buttons */}
                   <div className="mt-4 flex gap-2">
-                    <a
-                      href={`https://t.me/jhojhagames?text=I%20want%20to%20order%20${encodeURIComponent(game.title)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => setCheckoutGame(game)}
                       className="order-btn flex-1 py-3 rounded-lg font-rajdhani text-sm font-700 uppercase tracking-widest flex items-center justify-center gap-2"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       Order Now
-                    </a>
+                    </button>
                     <button
                       onClick={() => setSelectedGame(game)}
                       className="px-4 py-3 rounded-lg bg-white/5 border border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/10 hover:border-yellow-500/50 transition-all duration-300"
@@ -257,6 +257,15 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
           </div>
         )}
       </div>
+
+      {/* Checkout Modal */}
+      {checkoutGame && (
+        <CheckoutModal
+          gameName={checkoutGame.title}
+          price={checkoutGame.salePrice}
+          onClose={() => setCheckoutGame(null)}
+        />
+      )}
 
       {/* Game Detail Modal */}
       {selectedGame && (
@@ -310,16 +319,14 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
                 </span>
               </div>
 
-              <a
-                href={`https://t.me/jhojhagames?text=I%20want%20to%20order%20${encodeURIComponent(selectedGame.title)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => { setSelectedGame(null); setCheckoutGame(selectedGame); }}
                 className="order-btn w-full py-4 rounded-lg font-rajdhani text-base font-700 uppercase tracking-widest flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-5 h-5" />
-                Order Now on Telegram
+                Order Now
                 <ArrowRight className="w-5 h-5" />
-              </a>
+              </button>
             </div>
           </div>
         </div>

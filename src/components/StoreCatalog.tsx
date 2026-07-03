@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ShoppingCart, Instagram, Send, Star, Trash2, X, Calendar, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CatalogEntry } from '../hooks/useSteamCatalog';
+import CheckoutModal from './CheckoutModal';
 
 const TELEGRAM_URL = 'https://t.me/jhojhagames';
 const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
@@ -11,7 +12,7 @@ interface Props {
   isAdmin: boolean;
 }
 
-function GameModal({ game, onClose }: { game: CatalogEntry; onClose: () => void }) {
+function GameModal({ game, onClose, onOrder }: { game: CatalogEntry; onClose: () => void; onOrder: () => void }) {
   const [imgIndex, setImgIndex] = useState(0);
   const allImages = [game.image, ...game.screenshots];
 
@@ -83,10 +84,13 @@ function GameModal({ game, onClose }: { game: CatalogEntry; onClose: () => void 
 
           <div className="text-xs text-gray-600 font-inter">Steam Price: {game.steamPrice}</div>
 
-          <a href={`${TELEGRAM_URL}?text=I%20want%20to%20order%20${encodeURIComponent(game.title)}`} target="_blank" rel="noopener noreferrer" className="order-btn w-full py-4 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+          <button
+            onClick={() => { onClose(); onOrder(); }}
+            className="order-btn w-full py-4 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2"
+          >
             <ShoppingCart className="w-5 h-5" />
-            Order Now on Telegram
-          </a>
+            Order Now
+          </button>
         </div>
       </div>
     </div>
@@ -95,6 +99,7 @@ function GameModal({ game, onClose }: { game: CatalogEntry; onClose: () => void 
 
 export default function StoreCatalog({ catalog, onRemove, isAdmin }: Props) {
   const [selectedGame, setSelectedGame] = useState<CatalogEntry | null>(null);
+  const [checkoutGame, setCheckoutGame] = useState<{ title: string; price: number } | null>(null);
 
   if (catalog.length === 0) return null;
 
@@ -185,15 +190,13 @@ export default function StoreCatalog({ catalog, onRemove, isAdmin }: Props) {
 
                 {/* Buttons */}
                 <div className="space-y-2 mt-auto">
-                  <a
-                    href={`${TELEGRAM_URL}?text=I%20want%20to%20order%20${encodeURIComponent(game.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setCheckoutGame({ title: game.title, price: game.jhojhaPrice })}
                     className="order-btn w-full py-2.5 rounded-xl font-rajdhani text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2"
                   >
                     <ShoppingCart className="w-3.5 h-3.5" />
                     Order Now
-                  </a>
+                  </button>
                   <div className="grid grid-cols-2 gap-2">
                     <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="py-2 rounded-xl bg-gradient-to-br from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] hover:-translate-y-0.5 transition-all duration-300">
                       <Instagram className="w-3 h-3" /> Instagram
@@ -209,7 +212,24 @@ export default function StoreCatalog({ catalog, onRemove, isAdmin }: Props) {
         </div>
       </div>
 
-      {selectedGame && <GameModal game={selectedGame} onClose={() => setSelectedGame(null)} />}
+      {selectedGame && (
+        <GameModal
+          game={selectedGame}
+          onClose={() => setSelectedGame(null)}
+          onOrder={() => {
+            setCheckoutGame({ title: selectedGame.title, price: selectedGame.jhojhaPrice });
+            setSelectedGame(null);
+          }}
+        />
+      )}
+
+      {checkoutGame && (
+        <CheckoutModal
+          gameName={checkoutGame.title}
+          price={checkoutGame.price}
+          onClose={() => setCheckoutGame(null)}
+        />
+      )}
     </section>
   );
 }

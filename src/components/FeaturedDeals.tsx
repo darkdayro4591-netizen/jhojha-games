@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Flame, ShoppingCart, Instagram, Send } from 'lucide-react';
+import CheckoutModal from './CheckoutModal';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
 const TELEGRAM_URL = 'https://t.me/jhojhagames';
@@ -67,6 +69,8 @@ const deals = [
 ];
 
 export default function FeaturedDeals() {
+  const [checkoutDeal, setCheckoutDeal] = useState<{ title: string; salePrice: number } | null>(null);
+
   return (
     <section id="featured-deals" className="relative py-16 lg:py-24 overflow-hidden">
       {/* Background effects */}
@@ -166,15 +170,13 @@ export default function FeaturedDeals() {
                 {/* Action buttons */}
                 <div className="space-y-2 mt-auto">
                   {/* Order Now */}
-                  <a
-                    href={`${TELEGRAM_URL}?text=I%20want%20to%20order%20${encodeURIComponent(deal.title)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setCheckoutDeal({ title: deal.title, salePrice: deal.salePrice })}
                     className="order-btn w-full py-3 rounded-xl font-rajdhani text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02]"
                   >
                     <ShoppingCart className="w-4 h-4" />
                     Order Now
-                  </a>
+                  </button>
 
                   {/* Instagram + Telegram */}
                   <div className="grid grid-cols-2 gap-2">
@@ -203,6 +205,14 @@ export default function FeaturedDeals() {
           ))}
         </div>
       </div>
+
+      {checkoutDeal && (
+        <CheckoutModal
+          gameName={checkoutDeal.title}
+          price={checkoutDeal.salePrice}
+          onClose={() => setCheckoutDeal(null)}
+        />
+      )}
     </section>
   );
 }
