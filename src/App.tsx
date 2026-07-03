@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import CountdownTimer from './components/CountdownTimer';
@@ -17,30 +17,42 @@ import Footer from './components/Footer';
 import TelegramButton from './components/TelegramButton';
 import StoreCatalog from './components/StoreCatalog';
 import SteamImport from './components/SteamImport';
+import SearchModal from './components/SearchModal';
 import { useSteamCatalog } from './hooks/useSteamCatalog';
 import { Plus } from 'lucide-react';
 
 export default function App() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
   const [showImport, setShowImport] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   const { catalog, addGame, removeGame } = useSteamCatalog();
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
-    setSearchQuery('');
+    setShowSearch(false);
   };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearch(true);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
-      <Navbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <Navbar onSearchOpen={() => setShowSearch(true)} />
       <main>
         <Hero />
         <CountdownTimer />
         <FeaturedDeals />
         <GameCategories onSelectCategory={handleCategorySelect} />
-        <FeaturedGames searchQuery={searchQuery} externalCategory={selectedCategory} />
+        <FeaturedGames searchQuery="" externalCategory={selectedCategory} />
         {catalog.length > 0 && (
           <StoreCatalog catalog={catalog} onRemove={removeGame} isAdmin={true} />
         )}
@@ -73,6 +85,13 @@ export default function App() {
             return entry;
           }}
           onClose={() => setShowImport(false)}
+        />
+      )}
+
+      {showSearch && (
+        <SearchModal
+          catalog={catalog}
+          onClose={() => setShowSearch(false)}
         />
       )}
     </div>

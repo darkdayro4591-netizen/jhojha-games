@@ -11,14 +11,12 @@ const navLinks = [
 ];
 
 interface NavbarProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
+  onSearchOpen: () => void;
 }
 
-export default function Navbar({ searchQuery, onSearchChange }: NavbarProps) {
+export default function Navbar({ onSearchOpen }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
@@ -65,14 +63,15 @@ export default function Navbar({ searchQuery, onSearchChange }: NavbarProps) {
           </div>
 
           <div className="hidden lg:flex items-center gap-3">
-            {searchOpen ? (
-              <div className="relative">
-                <input autoFocus type="text" value={searchQuery} onChange={e => onSearchChange(e.target.value)} placeholder="Search games..." className="search-input w-44 px-4 py-2 rounded-lg text-sm text-white placeholder-gray-500 font-inter" onBlur={() => !searchQuery && setSearchOpen(false)} />
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/60" />
-              </div>
-            ) : (
-              <button onClick={() => setSearchOpen(true)} className="p-2 text-gray-400 hover:text-yellow-500 transition-colors duration-300"><Search className="w-5 h-5" /></button>
-            )}
+            <button
+              onClick={onSearchOpen}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-yellow-500/20 text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all duration-300"
+              aria-label="Search games"
+            >
+              <Search className="w-4 h-4" />
+              <span className="font-inter text-xs text-gray-500">Search games...</span>
+              <kbd className="hidden xl:inline-block px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-gray-600 font-mono text-[10px]">⌘K</kbd>
+            </button>
             <a href="https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-lg bg-white/5 border border-yellow-500/20 text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all duration-300" aria-label="Instagram">
               <Instagram className="w-5 h-5" />
             </a>
@@ -82,23 +81,26 @@ export default function Navbar({ searchQuery, onSearchChange }: NavbarProps) {
           </div>
 
           <div className="flex lg:hidden items-center gap-2">
-            <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 text-gray-400 hover:text-yellow-500 transition-colors"><Search className="w-5 h-5" /></button>
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-gray-300 hover:text-yellow-500 transition-colors">{isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}</button>
+            <button onClick={onSearchOpen} className="p-2 text-gray-400 hover:text-yellow-500 transition-colors" aria-label="Search">
+              <Search className="w-5 h-5" />
+            </button>
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-gray-300 hover:text-yellow-500 transition-colors">
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
-
-        {searchOpen && (
-          <div className="lg:hidden pb-3">
-            <div className="relative">
-              <input autoFocus type="text" value={searchQuery} onChange={e => onSearchChange(e.target.value)} placeholder="Search games..." className="search-input w-full px-4 py-2.5 rounded-lg text-sm text-white placeholder-gray-500" />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-500/60" />
-            </div>
-          </div>
-        )}
       </div>
 
       <div className={`lg:hidden transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-[30rem] opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="bg-black/98 backdrop-blur-xl border-t border-yellow-500/10 px-4 py-4 space-y-1">
+          {/* Mobile search button */}
+          <button
+            onClick={() => { setIsOpen(false); onSearchOpen(); }}
+            className="flex items-center gap-3 w-full px-4 py-3 rounded-lg bg-yellow-500/5 border border-yellow-500/20 text-gray-400 hover:text-yellow-500 transition-all duration-300 mb-2"
+          >
+            <Search className="w-4 h-4" />
+            <span className="font-rajdhani text-sm font-600 uppercase tracking-widest">Search Games</span>
+          </button>
           {navLinks.map(link => (
             <button key={link.label} onClick={() => handleNavClick(link.href)} className={`block w-full text-left px-4 py-3 rounded-lg font-rajdhani text-sm font-600 uppercase tracking-widest transition-all duration-300 ${activeSection === link.href.replace('#', '') ? 'text-yellow-500 bg-yellow-500/10' : 'text-gray-300 hover:text-yellow-500 hover:bg-yellow-500/5'}`}>{link.label}</button>
           ))}
