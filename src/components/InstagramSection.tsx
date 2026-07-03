@@ -16,7 +16,7 @@ const posts = [
     label: 'The Last of Us Part I',
   },
   {
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1271590/library_600x900.jpg',
+    image: '/outlast-trials-cover.jpeg',
     likes: '2.1K',
     comments: '142',
     label: 'Outlast Trials',

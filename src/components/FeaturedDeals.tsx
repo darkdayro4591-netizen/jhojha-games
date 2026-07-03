@@ -27,7 +27,7 @@ const deals = [
   {
     id: 3,
     title: 'Outlast Trials',
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1271590/library_600x900.jpg',
+    image: '/outlast-trials-cover.jpeg',
     salePrice: 499,
     originalPrice: 2449,
     badge: 'HOT DEAL',

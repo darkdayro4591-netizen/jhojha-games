@@ -87,7 +87,7 @@ export const games: Game[] = [
     id: 7,
     title: 'Outlast Trials',
     category: 'Horror',
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1271590/library_600x900.jpg',
+    image: '/outlast-trials-cover.jpeg',
     salePrice: 499,
     originalPrice: 1799,
     discount: 72,

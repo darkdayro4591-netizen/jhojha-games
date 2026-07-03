@@ -20,7 +20,7 @@ const categories = [
     icon: Ghost,
     count: '6+ Games',
     description: 'Survival horror that will keep you on edge',
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1271590/library_600x900.jpg',
+    image: '/outlast-trials-cover.jpeg',
   },
   {
     name: 'Racing',
