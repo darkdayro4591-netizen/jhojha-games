@@ -1,0 +1,530 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #F5A623;
+  --gold-light: #FFD166;
+  --gold-dark: #C47D0E;
+  --black: #0A0A0A;
+  --dark: #111111;
+  --dark-2: #1A1A1A;
+  --dark-3: #222222;
+  --dark-4: #2A2A2A;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--black);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* Gold glow utility */
+.gold-glow {
+  text-shadow: 0 0 20px rgba(245, 166, 35, 0.8), 0 0 40px rgba(245, 166, 35, 0.4);
+}
+
+.gold-glow-box {
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.3), 0 0 60px rgba(245, 166, 35, 0.1);
+}
+
+.gold-border-glow {
+  box-shadow: 0 0 0 1px rgba(245, 166, 35, 0.5), 0 0 20px rgba(245, 166, 35, 0.2);
+}
+
+/* Animated gradient border */
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 10px rgba(245, 166, 35, 0.4); }
+  50% { box-shadow: 0 0 30px rgba(245, 166, 35, 0.8), 0 0 60px rgba(245, 166, 35, 0.3); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(50px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rotateStar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glitchText {
+  0% { clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); transform: translate(-4px, -2px); }
+  20% { clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%); transform: translate(4px, 2px); }
+  40% { clip-path: polygon(0 30%, 100% 30%, 100% 55%, 0 55%); transform: translate(-2px, 1px); }
+  60% { clip-path: polygon(0 70%, 100% 70%, 100% 90%, 0 90%); transform: translate(2px, -1px); }
+  80% { clip-path: polygon(0 10%, 100% 10%, 100% 35%, 0 35%); transform: translate(-1px, 3px); }
+  100% { clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%); transform: translate(0); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(245,166,35,0.4) 50%, transparent 100%);
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.font-orbitron {
+  font-family: 'Orbitron', monospace;
+}
+
+.font-rajdhani {
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* Hexagon pattern background */
+.hex-bg {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(245, 166, 35, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(245, 166, 35, 0.03) 0%, transparent 50%);
+}
+
+/* Grid lines background */
+.grid-bg {
+  background-image: 
+    linear-gradient(rgba(245, 166, 35, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 166, 35, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Card hover effect */
+.game-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(245, 166, 35, 0.25), 0 0 0 1px rgba(245, 166, 35, 0.3);
+}
+
+/* Neon text */
+.neon-gold {
+  color: #F5A623;
+  text-shadow: 0 0 10px rgba(245, 166, 35, 0.8), 0 0 20px rgba(245, 166, 35, 0.5), 0 0 40px rgba(245, 166, 35, 0.3);
+}
+
+/* Button styles */
+.btn-gold {
+  background: linear-gradient(135deg, #F5A623, #C47D0E);
+  color: #000;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-gold:hover::before {
+  left: 100%;
+}
+
+.btn-gold:hover {
+  box-shadow: 0 0 30px rgba(245, 166, 35, 0.6), 0 0 60px rgba(245, 166, 35, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-outline-gold {
+  border: 1px solid rgba(245, 166, 35, 0.6);
+  color: #F5A623;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-gold:hover {
+  background: rgba(245, 166, 35, 0.1);
+  border-color: #F5A623;
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Scanline overlay */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Stars rating */
+.star-filled {
+  color: #F5A623;
+  filter: drop-shadow(0 0 4px rgba(245, 166, 35, 0.8));
+}
+
+/* Noise texture overlay */
+.noise-bg {
+  position: relative;
+}
+.noise-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Section divider */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 166, 35, 0.5), transparent);
+}
+
+/* WhatsApp button */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  animation: pulse-gold 2s ease-in-out infinite;
+}
+
+/* Countdown timer */
+.countdown-digit {
+  background: linear-gradient(135deg, #1A1A1A, #222);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  font-family: 'Orbitron', monospace;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Navigation */
+.nav-link {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: #F5A623;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(245, 166, 35, 0.8);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.nav-link:hover {
+  color: #F5A623;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+/* Search input */
+.search-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(245, 166, 35, 0.2);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: rgba(245, 166, 35, 0.6);
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.1);
+  outline: none;
+}
+
+/* Badge */
+.badge-new {
+  background: linear-gradient(135deg, #F5A623, #C47D0E);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+.badge-sale {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Particles */
+@keyframes particle-float {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #F5A623;
+  border-radius: 50%;
+  animation: particle-float linear infinite;
+  box-shadow: 0 0 6px rgba(245, 166, 35, 0.8);
+}
+
+/* Review card */
+.review-card {
+  background: linear-gradient(135deg, #1A1A1A 0%, #111111 100%);
+  border: 1px solid rgba(245, 166, 35, 0.15);
+  transition: all 0.3s ease;
+}
+
+.review-card:hover {
+  border-color: rgba(245, 166, 35, 0.4);
+  transform: translateY(-4px);
+}
+
+/* Stats counter */
+.stat-card {
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.08), rgba(245, 166, 35, 0.02));
+  border: 1px solid rgba(245, 166, 35, 0.2);
+}
+
+/* FAQ */
+.faq-item {
+  border: 1px solid rgba(245, 166, 35, 0.1);
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  border-color: rgba(245, 166, 35, 0.3);
+}
+
+/* Enhanced gold hover glow for cards */
+.gold-hover-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gold-hover-card:hover {
+  border-color: rgba(245, 166, 35, 0.5);
+  box-shadow: 0 0 30px rgba(245, 166, 35, 0.2), 0 0 60px rgba(245, 166, 35, 0.1), inset 0 0 20px rgba(245, 166, 35, 0.05);
+  transform: translateY(-6px);
+}
+
+/* Gold glow ring on hover */
+.gold-glow-ring {
+  position: relative;
+}
+
+.gold-glow-ring::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(245,166,35,0.6), transparent, rgba(245,166,35,0.6));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.gold-glow-ring:hover::before {
+  opacity: 1;
+}
+
+/* Shimmer sweep on hover */
+.shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(245,166,35,0.15), transparent);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.shimmer-sweep:hover::after {
+  left: 150%;
+}
+
+/* Category card */
+.category-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 20px 50px rgba(245, 166, 35, 0.25);
+}
+
+.category-card:hover .category-icon {
+  transform: scale(1.15) rotate(-5deg);
+  filter: drop-shadow(0 0 15px rgba(245, 166, 35, 0.8));
+}
+
+.category-icon {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Deal card */
+.deal-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.deal-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 40px rgba(245, 166, 35, 0.2), 0 0 0 1px rgba(245, 166, 35, 0.3);
+}
+
+/* Order button glow */
+.order-btn {
+  background: linear-gradient(135deg, #F5A623, #C47D0E);
+  color: #000;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.order-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.order-btn:hover::before {
+  left: 100%;
+}
+
+.order-btn:hover {
+  box-shadow: 0 0 25px rgba(245, 166, 35, 0.7), 0 0 50px rgba(245, 166, 35, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Instagram section */
+.insta-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.insta-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(245, 166, 35, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .countdown-digit {
+    min-width: 44px;
+  }
+}
+
+@media (max-width: 640px) {
+  .countdown-digit {
+    min-width: 38px;
+    padding: 0.5rem 0.25rem;
+  }
+}
