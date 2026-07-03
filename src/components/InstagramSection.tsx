@@ -34,7 +34,7 @@ const posts = [
     label: "AC Black Flag",
   },
   {
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/library_600x900.jpg',
+    image: '/re-requiem-cover.jpeg',
     likes: '1.8K',
     comments: '118',
     label: 'Resident Evil',

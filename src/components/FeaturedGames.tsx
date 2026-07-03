@@ -53,7 +53,7 @@ export const games: Game[] = [
     id: 4,
     title: 'Resident Evil Requiem',
     category: 'Horror',
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/library_600x900.jpg',
+    image: '/re-requiem-cover.jpeg',
     salePrice: 499,
     originalPrice: 1999,
     discount: 75,

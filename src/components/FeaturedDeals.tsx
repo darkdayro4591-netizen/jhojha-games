@@ -37,7 +37,7 @@ const deals = [
   {
     id: 4,
     title: 'Resident Evil Requiem',
-    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/library_600x900.jpg',
+    image: '/re-requiem-cover.jpeg',
     salePrice: 499,
     originalPrice: 4999,
     badge: 'BEST SELLER',
