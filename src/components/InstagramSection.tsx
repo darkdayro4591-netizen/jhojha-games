@@ -4,34 +4,40 @@ const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0Z
 
 const posts = [
   {
-    image: 'https://images.pexels.com/photos/7917664/pexels-photo-7917664.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: 'https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_VI_cover.jpg',
     likes: '1.2K',
     comments: '89',
+    label: 'GTA VI',
   },
   {
-    image: 'https://images.pexels.com/photos/7915210/pexels-photo-7915210.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1888930/library_600x900.jpg',
     likes: '956',
     comments: '64',
+    label: 'The Last of Us Part I',
   },
   {
-    image: 'https://images.pexels.com/photos/7915215/pexels-photo-7915215.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1271590/library_600x900.jpg',
     likes: '2.1K',
     comments: '142',
+    label: 'Outlast Trials',
   },
   {
-    image: 'https://images.pexels.com/photos/7915220/pexels-photo-7915220.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900.jpg',
     likes: '1.5K',
     comments: '97',
+    label: 'Forza Horizon 5',
   },
   {
-    image: 'https://images.pexels.com/photos/7915218/pexels-photo-7915218.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/242050/library_600x900.jpg',
     likes: '834',
     comments: '52',
+    label: "AC Black Flag",
   },
   {
-    image: 'https://images.pexels.com/photos/7915213/pexels-photo-7915213.jpeg?auto=compress&cs=tinysrgb&w=600',
+    image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2050650/library_600x900.jpg',
     likes: '1.8K',
     comments: '118',
+    label: 'Resident Evil',
   },
 ];
 
