@@ -1,184 +1,191 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import {
-  X, ShieldCheck, Smartphone, Wallet, CreditCard, QrCode,
-  Upload, CheckCircle2, Instagram, Send, ArrowRight, ChevronRight,
-  Loader2, XCircle, AlertTriangle, ScanSearch, AtSign,
+  X, ShieldCheck, ArrowRight, ChevronRight, CheckCircle2,
+  Instagram, Send, Loader2, XCircle, ScanSearch,
+  Smartphone, Wallet, CreditCard, AlertTriangle, Mail,
+  KeyRound, Eye, EyeOff,
 } from 'lucide-react';
 
-const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
-const TELEGRAM_URL = 'https://t.me/jhojhagames';
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  order_id: string;
+  prefill?: { name?: string; email?: string };
+  theme?: { color?: string };
+  modal?: { ondismiss?: () => void; escape?: boolean; backdropclose?: boolean };
+  config?: {
+    display?: {
+      blocks?: Record<string, { name: string; instruments: { method: string; flows?: string[] }[] }>;
+      sequence?: string[];
+      preferences?: { show_default_blocks?: boolean };
+    };
+  };
+  handler?: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => void;
+}
 
-const paymentMethods = [
-  { name: 'UPI',         Icon: Smartphone, color: 'from-orange-500 to-amber-500',  shadow: 'rgba(249,115,22,0.4)'  },
-  { name: 'PhonePe',    Icon: CreditCard,  color: 'from-purple-600 to-indigo-600', shadow: 'rgba(139,92,246,0.4)'  },
-  { name: 'Google Pay', Icon: Smartphone,  color: 'from-blue-500 to-cyan-500',     shadow: 'rgba(59,130,246,0.4)'  },
-  { name: 'Paytm',      Icon: Wallet,      color: 'from-sky-500 to-blue-600',      shadow: 'rgba(14,165,233,0.4)'  },
+const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
+const TELEGRAM_URL  = 'https://t.me/jhojhagames';
+
+type Step = 'details' | 'payment' | 'verifying' | 'success' | 'failed';
+type PayMethod = 'upi' | 'phonepe' | 'gpay' | 'paytm';
+
+interface Props { gameName: string; price: number; onClose: () => void; }
+
+const METHODS: { id: PayMethod; label: string; desc: string; color: string; shadow: string; Icon: React.ElementType }[] = [
+  { id: 'upi',     label: 'UPI',         desc: 'Any UPI App',        color: 'from-orange-500 to-amber-500',  shadow: 'rgba(249,115,22,0.35)', Icon: Smartphone  },
+  { id: 'phonepe', label: 'PhonePe',     desc: 'Fast Transfer',      color: 'from-purple-600 to-indigo-600', shadow: 'rgba(139,92,246,0.35)', Icon: CreditCard  },
+  { id: 'gpay',    label: 'Google Pay',  desc: 'Instant & Secure',   color: 'from-blue-500 to-cyan-500',     shadow: 'rgba(59,130,246,0.35)', Icon: Smartphone  },
+  { id: 'paytm',   label: 'Paytm',       desc: 'Wallet / UPI',       color: 'from-sky-500 to-blue-600',      shadow: 'rgba(14,165,233,0.35)', Icon: Wallet      },
 ];
 
-type Step = 'payment' | 'form' | 'verifying' | 'success' | 'rejected';
-
-interface CheckResult {
-  label: string;
-  status: 'pending' | 'checking' | 'pass' | 'fail';
+function validateInstagram(u: string) {
+  const t = u.trim().replace(/^@/, '');
+  if (!t) return 'Instagram username is required';
+  if (t.length > 30) return 'Must be 30 characters or less';
+  if (!/^[a-zA-Z0-9._]+$/.test(t)) return 'Only letters, numbers, . and _ allowed';
+  if (/\.\./.test(t)) return 'Cannot have consecutive dots';
+  if (t.startsWith('.') || t.endsWith('.')) return 'Cannot start or end with a dot';
+  return '';
 }
 
-interface VerificationOutcome {
-  screenshotOk: boolean;
-  instagramOk: boolean;
-  screenshotReason?: string;
-  instagramReason?: string;
-}
-
-function validateInstagram(username: string): { ok: boolean; reason?: string } {
-  const trimmed = username.trim().replace(/^@/, '');
-  if (!trimmed) return { ok: false, reason: 'Username is empty' };
-  if (trimmed.length < 1 || trimmed.length > 30)
-    return { ok: false, reason: 'Must be 1–30 characters' };
-  if (!/^[a-zA-Z0-9._]+$/.test(trimmed))
-    return { ok: false, reason: 'Invalid characters (use letters, numbers, . or _)' };
-  if (/\.\./.test(trimmed))
-    return { ok: false, reason: 'Cannot contain consecutive dots' };
-  if (trimmed.startsWith('.') || trimmed.endsWith('.'))
-    return { ok: false, reason: 'Cannot start or end with a dot' };
-  return { ok: true };
-}
-
-async function validateScreenshot(file: File | null): Promise<{ ok: boolean; reason?: string }> {
-  if (!file) return { ok: false, reason: 'No screenshot uploaded' };
-
-  const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-  if (!validTypes.includes(file.type))
-    return { ok: false, reason: 'File must be an image (JPG, PNG, WebP)' };
-
-  if (file.size < 20 * 1024)
-    return { ok: false, reason: 'File too small — may not be a real screenshot' };
-
-  if (file.size > 15 * 1024 * 1024)
-    return { ok: false, reason: 'File too large (max 15MB)' };
-
-  const dims = await new Promise<{ w: number; h: number } | null>(resolve => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => { URL.revokeObjectURL(url); resolve({ w: img.naturalWidth, h: img.naturalHeight }); };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
-    img.src = url;
-  });
-
-  if (!dims) return { ok: false, reason: 'Cannot read image — file may be corrupted' };
-  if (dims.w < 100 || dims.h < 100)
-    return { ok: false, reason: 'Image too small — upload a clear, full screenshot' };
-
-  return { ok: true };
-}
-
-interface Props {
-  gameName: string;
-  price: number;
-  onClose: () => void;
+function validateEmail(e: string) {
+  if (!e.trim()) return 'Email is required';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return 'Enter a valid email address';
+  return '';
 }
 
 export default function CheckoutModal({ gameName, price, onClose }: Props) {
-  const [step, setStep] = useState<Step>('payment');
-  const [name, setName] = useState('');
+  const [step, setStep] = useState<Step>('details');
+  const [method, setMethod] = useState<PayMethod>('upi');
+
+  const [name, setName]           = useState('');
   const [instagram, setInstagram] = useState('');
-  const [telegram, setTelegram] = useState('');
-  const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
-  const [screenshotName, setScreenshotName] = useState('');
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [checks, setChecks] = useState<CheckResult[]>([]);
-  const [outcome, setOutcome] = useState<VerificationOutcome | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [email, setEmail]         = useState('');
+  const [telegram, setTelegram]   = useState('');
+  const [steamUser, setSteamUser] = useState('');
+  const [steamPass, setSteamPass] = useState('');
+  const [showSteam, setShowSteam] = useState(false);
+  const [showPass, setShowPass]   = useState(false);
+  const [errors, setErrors]       = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    return () => { if (screenshotPreview) URL.revokeObjectURL(screenshotPreview); };
-  }, [screenshotPreview]);
+  const [verifyStatus, setVerifyStatus] = useState<string>('');
+  const [failReason, setFailReason]     = useState('');
+  const [orderId, setOrderId]           = useState('');
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setScreenshot(file);
-    setScreenshotName(file.name);
-    setErrors(p => ({ ...p, screenshot: '' }));
-    const preview = URL.createObjectURL(file);
-    setScreenshotPreview(preview);
+  const paying = useRef(false);
+
+  const validateDetails = () => {
+    const e: Record<string, string> = {};
+    if (!name.trim()) e.name = 'Name is required';
+    const igErr = validateInstagram(instagram); if (igErr) e.instagram = igErr;
+    const emErr = validateEmail(email); if (emErr) e.email = emErr;
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (!name.trim()) errs.name = 'Name is required';
-    if (!instagram.trim()) errs.instagram = 'Instagram username is required';
-    if (!screenshot) errs.screenshot = 'Payment screenshot is required';
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
-  };
-
-  const runVerification = async () => {
-    if (!validate()) return;
+  const openRazorpay = async () => {
+    if (paying.current) return;
+    paying.current = true;
     setStep('verifying');
+    setVerifyStatus('Creating secure payment session…');
 
-    const initialChecks: CheckResult[] = [
-      { label: 'Checking payment screenshot',       status: 'pending' },
-      { label: 'Validating image authenticity',     status: 'pending' },
-      { label: 'Verifying Instagram username',      status: 'pending' },
-      { label: 'Checking account format',           status: 'pending' },
-    ];
-    setChecks(initialChecks);
+    try {
+      const orderRes = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: price, game_name: gameName }),
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order');
 
-    const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+      setVerifyStatus('Opening payment gateway…');
 
-    const updateCheck = (i: number, status: CheckResult['status']) => {
-      setChecks(prev => prev.map((c, idx) => idx === i ? { ...c, status } : c));
-    };
+      const rzpConfig: RazorpayOptions = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'Jhojha Games',
+        description: `Payment for ${gameName}`,
+        order_id: orderData.order_id,
+        prefill: { name, email },
+        theme: { color: '#F5A623' },
+        modal: {
+          escape: false,
+          backdropclose: false,
+          ondismiss: () => {
+            paying.current = false;
+            setStep('failed');
+            setFailReason('Payment was cancelled. Please try again.');
+          },
+        },
+        handler: async (response) => {
+          setVerifyStatus('Verifying payment with gateway…');
+          try {
+            const verifyRes = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id:   response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature:  response.razorpay_signature,
+                customer_name: name,
+                instagram: instagram.replace(/^@/, ''),
+                email,
+                telegram: telegram.replace(/^@/, '') || null,
+                game_name: gameName,
+                game_price: price,
+                steam_username: steamUser || null,
+                steam_password: steamPass || null,
+                payment_method: method,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok || verifyData.status !== 'verified') {
+              throw new Error(verifyData.error || 'Verification failed');
+            }
+            setOrderId(verifyData.order_db_id?.toString() || '');
+            setStep('success');
+          } catch (err) {
+            setFailReason((err as Error).message || 'Payment verification failed');
+            setStep('failed');
+          } finally {
+            paying.current = false;
+          }
+        },
+      };
 
-    await delay(400);
-    updateCheck(0, 'checking');
-    await delay(900);
-    const ssResult = await validateScreenshot(screenshot);
-    updateCheck(0, ssResult.ok ? 'pass' : 'fail');
+      if (method === 'upi' || method === 'phonepe' || method === 'gpay') {
+        rzpConfig.config = {
+          display: {
+            blocks: { utib0: { name: 'Pay via UPI', instruments: [{ method: 'upi' }] } },
+            sequence: ['block.utib0'],
+            preferences: { show_default_blocks: false },
+          },
+        };
+      } else if (method === 'paytm') {
+        rzpConfig.config = {
+          display: {
+            blocks: { utib0: { name: 'Pay via Paytm', instruments: [{ method: 'upi', flows: ['intent'] }] } },
+            sequence: ['block.utib0'],
+            preferences: { show_default_blocks: false },
+          },
+        };
+      }
 
-    await delay(300);
-    updateCheck(1, 'checking');
-    await delay(800);
-    updateCheck(1, ssResult.ok ? 'pass' : 'fail');
-
-    await delay(300);
-    updateCheck(2, 'checking');
-    await delay(700);
-    const igResult = validateInstagram(instagram);
-    updateCheck(2, igResult.ok ? 'pass' : 'fail');
-
-    await delay(300);
-    updateCheck(3, 'checking');
-    await delay(600);
-    updateCheck(3, igResult.ok ? 'pass' : 'fail');
-
-    await delay(500);
-
-    setOutcome({
-      screenshotOk: ssResult.ok,
-      instagramOk: igResult.ok,
-      screenshotReason: ssResult.reason,
-      instagramReason: igResult.reason,
-    });
-
-    if (ssResult.ok && igResult.ok) {
-      setStep('success');
-    } else {
-      setStep('rejected');
+      if (!window.Razorpay) throw new Error('Payment gateway not loaded. Please refresh the page.');
+      const rzp = new window.Razorpay(rzpConfig);
+      rzp.open();
+    } catch (err) {
+      paying.current = false;
+      setFailReason((err as Error).message || 'Could not open payment gateway');
+      setStep('failed');
     }
   };
 
-  const rejectionMessage = () => {
-    if (!outcome) return '';
-    if (!outcome.screenshotOk && !outcome.instagramOk)
-      return '❌ Order rejected. Invalid payment proof and Instagram username.';
-    if (!outcome.screenshotOk)
-      return '❌ Wrong payment screenshot. Please upload a valid payment proof.';
-    return '❌ Wrong Instagram username. Please provide a valid Instagram account.';
-  };
-
-  const stepIndicator = (['payment', 'form'] as const);
+  const stepOrder: Step[] = ['details', 'payment'];
 
   return (
     <div
@@ -191,47 +198,42 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
         style={{ boxShadow: '0 0 0 1px rgba(245,166,35,0.2), 0 40px 80px rgba(0,0,0,0.8)' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Close — hidden during verification */}
         {step !== 'verifying' && (
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 rounded-lg bg-black/60 border border-white/10 text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 transition-all"
-          >
+          <button onClick={onClose} className="absolute top-4 right-4 z-10 p-2 rounded-lg bg-black/60 border border-white/10 text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 transition-all">
             <X className="w-4 h-4" />
           </button>
         )}
 
-        {/* ── HEADER ── */}
+        {/* Header */}
         {step !== 'verifying' && (
           <div className="px-6 pt-6 pb-5 border-b border-yellow-500/10">
             <div className="flex items-center gap-2 mb-1">
               <ShieldCheck className="w-4 h-4 text-yellow-500" />
               <span className="text-yellow-500 text-xs font-rajdhani font-bold uppercase tracking-widest">
-                {step === 'success' ? 'Order Verified' : step === 'rejected' ? 'Verification Failed' : 'Secure Checkout'}
+                {step === 'success' ? 'Order Confirmed' : step === 'failed' ? 'Payment Failed' : 'Secure Checkout'}
               </span>
             </div>
-            <h2 className="font-orbitron text-xl font-black text-white leading-tight">
-              {step === 'success' ? 'Order Confirmed!' : step === 'rejected' ? 'Order Rejected' : 'Complete Your Order'}
+            <h2 className="font-orbitron text-xl font-black text-white">
+              {step === 'success' ? 'Payment Verified!' : step === 'failed' ? 'Transaction Failed' : 'Complete Your Order'}
             </h2>
-
             <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/25">
               <span className="text-yellow-400 font-rajdhani text-sm font-bold">{gameName}</span>
               <span className="w-1 h-1 rounded-full bg-yellow-500/50" />
               <span className="font-orbitron text-sm font-black text-yellow-500">₹{price.toLocaleString('en-IN')}</span>
             </div>
 
-            {step !== 'success' && step !== 'rejected' && (
+            {(step === 'details' || step === 'payment') && (
               <div className="flex items-center gap-2 mt-4">
-                {stepIndicator.map((stepId, i) => {
-                  const isActive = step === stepId;
-                  const isDone = i === 0 && step === 'form';
+                {stepOrder.map((s, i) => {
+                  const isActive = step === s;
+                  const isDone = i === 0 && step === 'payment';
                   return (
-                    <div key={stepId} className="flex items-center gap-2">
+                    <div key={s} className="flex items-center gap-2">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-orbitron font-black transition-all duration-300 ${isActive ? 'bg-yellow-500 text-black' : isDone ? 'bg-yellow-500/20 border border-yellow-500/50 text-yellow-500' : 'bg-white/5 border border-white/15 text-gray-500'}`}>
                         {isDone ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
                       </div>
                       <span className={`text-xs font-rajdhani font-bold uppercase tracking-wider ${isActive ? 'text-yellow-500' : 'text-gray-600'}`}>
-                        {stepId === 'payment' ? 'Pay' : 'Details'}
+                        {s === 'details' ? 'Details' : 'Payment'}
                       </span>
                       {i < 1 && <ChevronRight className="w-3.5 h-3.5 text-gray-700" />}
                     </div>
@@ -242,102 +244,47 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
           </div>
         )}
 
-        {/* ── STEP 1: PAYMENT ── */}
-        {step === 'payment' && (
-          <div className="p-6 space-y-6">
-            <div>
-              <h3 className="font-orbitron text-xs font-bold text-yellow-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <CreditCard className="w-3.5 h-3.5" /> Choose Payment Method
-              </h3>
-              <div className="grid grid-cols-2 gap-3">
-                {paymentMethods.map(({ name: mName, Icon, color, shadow }) => (
-                  <div key={mName} className="flex items-center gap-3 p-3 rounded-xl bg-white/3 border border-white/8 hover:border-yellow-500/40 hover:-translate-y-0.5 transition-all duration-300 cursor-default">
-                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center flex-shrink-0`} style={{ boxShadow: `0 4px 12px ${shadow}` }}>
-                      <Icon className="w-4 h-4 text-white" />
-                    </div>
-                    <p className="font-rajdhani text-sm font-bold text-white">{mName}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <h3 className="font-orbitron text-xs font-bold text-yellow-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <QrCode className="w-3.5 h-3.5" /> Scan QR to Pay
-              </h3>
-              <div className="relative rounded-2xl overflow-hidden p-1" style={{ boxShadow: '0 0 0 1px rgba(245,166,35,0.5), 0 0 30px rgba(245,166,35,0.15)' }}>
-                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-yellow-400 rounded-tl-2xl z-10" />
-                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-yellow-400 rounded-tr-2xl z-10" />
-                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-yellow-400 rounded-bl-2xl z-10" />
-                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-yellow-400 rounded-br-2xl z-10" />
-                <img src="/payment-qr.jpeg" alt="Scan to pay" className="w-52 h-52 sm:w-60 sm:h-60 object-cover rounded-xl" />
-              </div>
-              <p className="mt-3 font-rajdhani text-sm font-bold text-yellow-400 uppercase tracking-widest">Scan & Pay ₹{price.toLocaleString('en-IN')}</p>
-              <p className="text-gray-500 font-inter text-xs mt-0.5">UPI · PhonePe · Google Pay · Paytm</p>
-            </div>
-
-            <button onClick={() => setStep('form')} className="order-btn w-full py-4 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform duration-200">
-              I Have Paid — Fill Details <ArrowRight className="w-4 h-4" />
-            </button>
-            <p className="text-center text-gray-600 font-inter text-xs">Complete the payment first, then fill your details on the next step.</p>
-          </div>
-        )}
-
-        {/* ── STEP 2: FORM ── */}
-        {step === 'form' && (
-          <div className="p-6 space-y-5">
-            <p className="text-gray-400 font-inter text-sm leading-relaxed">
-              Fill in your details. Your order will be verified automatically before confirmation.
-            </p>
+        {/* ── STEP 1: DETAILS FORM ── */}
+        {step === 'details' && (
+          <div className="p-6 space-y-4">
+            <p className="text-gray-400 font-inter text-sm">Fill in your details to receive your game after payment.</p>
 
             {/* Name */}
             <div>
-              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">
-                Your Name <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: '' })); }}
-                placeholder="Enter your full name"
-                className={`w-full px-4 py-3 rounded-xl bg-white/5 border ${errors.name ? 'border-red-500/60' : 'border-white/10 focus:border-yellow-500/60'} text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200`}
-              />
-              {errors.name && <p className="mt-1 text-xs text-red-400 font-inter">{errors.name}</p>}
+              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">Full Name <span className="text-red-400">*</span></label>
+              <input type="text" value={name} onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: '' })); }} placeholder="Your full name"
+                className={`w-full px-4 py-3 rounded-xl bg-white/5 border ${errors.name ? 'border-red-500/60' : 'border-white/10 focus:border-yellow-500/60'} text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all`} />
+              {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name}</p>}
             </div>
 
             {/* Instagram */}
             <div>
-              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">
-                Instagram Username <span className="text-red-400">*</span>
-              </label>
+              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">Instagram Username <span className="text-red-400">*</span></label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-inter text-sm">@</span>
-                <input
-                  type="text"
-                  value={instagram}
-                  onChange={e => { setInstagram(e.target.value.replace(/^@/, '')); setErrors(p => ({ ...p, instagram: '' })); }}
-                  placeholder="your.username"
-                  className={`w-full pl-8 pr-4 py-3 rounded-xl bg-white/5 border ${errors.instagram ? 'border-red-500/60' : 'border-white/10 focus:border-yellow-500/60'} text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200`}
-                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">@</span>
+                <input type="text" value={instagram} onChange={e => { setInstagram(e.target.value.replace(/^@/, '')); setErrors(p => ({ ...p, instagram: '' })); }} placeholder="your.username"
+                  className={`w-full pl-8 pr-4 py-3 rounded-xl bg-white/5 border ${errors.instagram ? 'border-red-500/60' : 'border-white/10 focus:border-yellow-500/60'} text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all`} />
               </div>
-              {errors.instagram && <p className="mt-1 text-xs text-red-400 font-inter">{errors.instagram}</p>}
-              <p className="mt-1 text-xs text-gray-600 font-inter">Must be a real Instagram account (e.g. john.doe_99)</p>
+              {errors.instagram && <p className="mt-1 text-xs text-red-400">{errors.instagram}</p>}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">
+                <span className="flex items-center gap-1.5"><Mail className="w-3 h-3" /> Email Address <span className="text-red-400">*</span></span>
+              </label>
+              <input type="email" value={email} onChange={e => { setEmail(e.target.value); setErrors(p => ({ ...p, email: '' })); }} placeholder="you@example.com"
+                className={`w-full px-4 py-3 rounded-xl bg-white/5 border ${errors.email ? 'border-red-500/60' : 'border-white/10 focus:border-yellow-500/60'} text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all`} />
+              {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
             </div>
 
             {/* Telegram */}
             <div>
-              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">
-                Telegram Username <span className="text-gray-600 font-normal normal-case tracking-normal">(optional)</span>
-              </label>
+              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">Telegram <span className="text-gray-600 font-normal normal-case tracking-normal">(optional)</span></label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-inter text-sm">@</span>
-                <input
-                  type="text"
-                  value={telegram}
-                  onChange={e => setTelegram(e.target.value.replace(/^@/, ''))}
-                  placeholder="your.username"
-                  className="w-full pl-8 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-yellow-500/60 text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all duration-200"
-                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">@</span>
+                <input type="text" value={telegram} onChange={e => setTelegram(e.target.value.replace(/^@/, ''))} placeholder="your.username"
+                  className="w-full pl-8 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-yellow-500/60 text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all" />
               </div>
             </div>
 
@@ -350,214 +297,131 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
               </div>
             </div>
 
-            {/* Screenshot upload */}
-            <div>
-              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">
-                Payment Screenshot <span className="text-red-400">*</span>
-              </label>
+            {/* Steam Details toggle */}
+            <div className="rounded-xl border border-white/8 overflow-hidden">
               <button
                 type="button"
-                onClick={() => fileRef.current?.click()}
-                className={`w-full flex flex-col items-center justify-center gap-2.5 py-6 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${screenshot ? 'border-green-500/60 bg-green-500/5' : errors.screenshot ? 'border-red-500/50 bg-red-500/5' : 'border-yellow-500/25 bg-yellow-500/3 hover:border-yellow-500/50 hover:bg-yellow-500/6'}`}
+                onClick={() => setShowSteam(p => !p)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-white/3 hover:bg-white/5 transition-colors"
               >
-                {screenshot && screenshotPreview ? (
-                  <div className="flex items-center gap-4 px-4 w-full">
-                    <img src={screenshotPreview} alt="Preview" className="w-16 h-16 rounded-lg object-cover border border-green-500/40 flex-shrink-0" />
-                    <div className="text-left flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
-                        <p className="font-rajdhani text-sm font-bold text-green-400 uppercase tracking-wider">Screenshot Ready</p>
-                      </div>
-                      <p className="font-inter text-xs text-gray-500 truncate">{screenshotName}</p>
-                      <p className="font-inter text-xs text-gray-600 mt-0.5">{(screenshot.size / 1024).toFixed(0)} KB</p>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="w-10 h-10 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center">
-                      <Upload className="w-5 h-5 text-yellow-500" />
-                    </div>
-                    <div className="text-center">
-                      <p className="font-rajdhani text-sm font-bold text-white uppercase tracking-wider">Upload Payment Screenshot</p>
-                      <p className="font-inter text-xs text-gray-500 mt-0.5">PNG, JPG, WebP · Max 15MB</p>
-                    </div>
-                  </>
-                )}
+                <span className="flex items-center gap-2 font-rajdhani text-xs font-bold uppercase tracking-widest text-gray-400">
+                  <KeyRound className="w-3.5 h-3.5" /> Steam Account Details <span className="text-gray-600 font-normal normal-case tracking-normal">(if required for delivery)</span>
+                </span>
+                <ChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${showSteam ? 'rotate-90' : ''}`} />
               </button>
-              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
-              {errors.screenshot && <p className="mt-1 text-xs text-red-400 font-inter">{errors.screenshot}</p>}
-              {screenshot && (
-                <p className="mt-1 text-xs text-gray-600 font-inter">
-                  Make sure the screenshot clearly shows: payment status, amount, and date/time.
-                </p>
+              {showSteam && (
+                <div className="p-4 space-y-3 border-t border-white/8">
+                  <div>
+                    <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">Steam Username</label>
+                    <input type="text" value={steamUser} onChange={e => setSteamUser(e.target.value)} placeholder="SteamUsername123"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 focus:border-yellow-500/60 text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-1.5">Steam Password</label>
+                    <div className="relative">
+                      <input type={showPass ? 'text' : 'password'} value={steamPass} onChange={e => setSteamPass(e.target.value)} placeholder="••••••••"
+                        className="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/5 border border-white/10 focus:border-yellow-500/60 text-white font-inter text-sm placeholder:text-gray-600 focus:outline-none transition-all" />
+                      <button type="button" onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                        {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="mt-1.5 text-xs text-gray-600">Your credentials are encrypted and only used for game delivery.</p>
+                  </div>
+                </div>
               )}
             </div>
 
             <button
-              onClick={runVerification}
-              className="order-btn w-full py-4 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform duration-200"
+              onClick={() => { if (validateDetails()) setStep('payment'); }}
+              className="order-btn w-full py-4 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
             >
-              <ShieldCheck className="w-4 h-4" />
-              Verify & Confirm Order
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button onClick={() => setStep('payment')} className="w-full text-center text-gray-600 font-inter text-xs hover:text-gray-400 transition-colors">
-              ← Back to Payment
+              Continue to Payment <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* ── STEP 3: VERIFYING ── */}
+        {/* ── STEP 2: PAYMENT METHOD ── */}
+        {step === 'payment' && (
+          <div className="p-6 space-y-5">
+            <p className="text-gray-400 font-inter text-sm">Choose your payment method. You'll be redirected to a secure Razorpay checkout.</p>
+
+            <div>
+              <label className="block font-rajdhani text-xs font-bold uppercase tracking-widest text-yellow-500 mb-3">Payment Method</label>
+              <div className="grid grid-cols-2 gap-3">
+                {METHODS.map(({ id, label, desc, color, shadow, Icon }) => (
+                  <button
+                    key={id}
+                    onClick={() => setMethod(id)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 text-left ${method === id ? 'border-yellow-500/60 bg-yellow-500/8 shadow-[0_0_20px_rgba(245,166,35,0.1)]' : 'border-white/8 bg-white/3 hover:border-white/20'}`}
+                  >
+                    <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center flex-shrink-0`} style={{ boxShadow: method === id ? `0 4px 12px ${shadow}` : 'none' }}>
+                      <Icon className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-rajdhani text-sm font-bold text-white leading-tight">{label}</p>
+                      <p className="text-gray-500 text-xs truncate">{desc}</p>
+                    </div>
+                    {method === id && <CheckCircle2 className="w-4 h-4 text-yellow-500 ml-auto flex-shrink-0" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Amount summary */}
+            <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/15 space-y-2">
+              <p className="font-rajdhani text-xs font-bold text-yellow-500 uppercase tracking-widest">Order Summary</p>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400 font-inter text-sm">{gameName}</span>
+                <span className="font-orbitron font-black text-yellow-500">₹{price.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-yellow-500/10 pt-2">
+                <span className="font-rajdhani font-bold text-yellow-400 uppercase tracking-wider text-sm">Total</span>
+                <span className="font-orbitron font-black text-yellow-500 text-lg">₹{price.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/3 border border-white/8 flex items-center gap-2.5">
+              <ShieldCheck className="w-4 h-4 text-green-400 flex-shrink-0" />
+              <p className="font-inter text-xs text-gray-400 leading-relaxed">
+                Secured by <span className="text-white font-semibold">Razorpay</span>. Your payment is encrypted and verified by the gateway — we never accept unverified transactions.
+              </p>
+            </div>
+
+            <button onClick={openRazorpay} className="order-btn w-full py-4 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform">
+              <ShieldCheck className="w-4 h-4" />
+              Pay ₹{price.toLocaleString('en-IN')} via {METHODS.find(m => m.id === method)?.label}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button onClick={() => setStep('details')} className="w-full text-center text-gray-600 font-inter text-xs hover:text-gray-400 transition-colors">
+              ← Back to Details
+            </button>
+          </div>
+        )}
+
+        {/* ── VERIFYING ── */}
         {step === 'verifying' && (
-          <div className="p-8 flex flex-col items-center">
-            {/* Animated scanner */}
+          <div className="p-8 flex flex-col items-center text-center">
             <div className="relative w-24 h-24 mb-6 mt-2">
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{ background: 'radial-gradient(circle, rgba(245,166,35,0.15), transparent)', boxShadow: '0 0 0 1px rgba(245,166,35,0.3)', animation: 'pulse 2s ease-in-out infinite' }}
-              />
-              <div
-                className="absolute inset-3 rounded-full border-2 border-yellow-500/30"
-                style={{ animation: 'spin 2s linear infinite' }}
-              />
-              <div
-                className="absolute inset-0 rounded-full border-t-2 border-yellow-500"
-                style={{ animation: 'spin 1.2s linear infinite' }}
-              />
+              <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle, rgba(245,166,35,0.15), transparent)', boxShadow: '0 0 0 1px rgba(245,166,35,0.3)', animation: 'pulse 2s ease-in-out infinite' }} />
+              <div className="absolute inset-0 rounded-full border-t-2 border-yellow-500" style={{ animation: 'spin 1.2s linear infinite' }} />
               <div className="absolute inset-0 flex items-center justify-center">
                 <ScanSearch className="w-8 h-8 text-yellow-500" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
               </div>
             </div>
-
-            <h3 className="font-orbitron text-lg font-black text-white mb-1">Verifying Order</h3>
-            <p className="text-gray-500 font-inter text-sm mb-6 text-center">
-              Running security checks on your payment details…
-            </p>
-
-            {/* Check list */}
-            <div className="w-full max-w-sm space-y-3">
-              {checks.map((check, i) => (
-                <div
-                  key={i}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-500 ${
-                    check.status === 'pass'     ? 'bg-green-500/8  border-green-500/30' :
-                    check.status === 'fail'     ? 'bg-red-500/8    border-red-500/30'   :
-                    check.status === 'checking' ? 'bg-yellow-500/8 border-yellow-500/30' :
-                                                  'bg-white/3      border-white/8'
-                  }`}
-                  style={{ opacity: check.status === 'pending' ? 0.4 : 1 }}
-                >
-                  <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
-                    {check.status === 'pass'     && <CheckCircle2 className="w-4.5 h-4.5 text-green-400" />}
-                    {check.status === 'fail'     && <XCircle className="w-4.5 h-4.5 text-red-400" />}
-                    {check.status === 'checking' && <Loader2 className="w-4 h-4 text-yellow-500 animate-spin" />}
-                    {check.status === 'pending'  && <div className="w-3 h-3 rounded-full bg-white/15" />}
-                  </div>
-                  <span className={`font-rajdhani text-sm font-bold ${
-                    check.status === 'pass'     ? 'text-green-400' :
-                    check.status === 'fail'     ? 'text-red-400'   :
-                    check.status === 'checking' ? 'text-yellow-400' :
-                                                  'text-gray-600'
-                  }`}>
-                    {check.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-6 text-gray-600 font-inter text-xs text-center">
-              Do not close this window. Verification in progress…
-            </p>
-          </div>
-        )}
-
-        {/* ── STEP 4: REJECTED ── */}
-        {step === 'rejected' && outcome && (
-          <div className="p-6 flex flex-col items-center text-center space-y-5">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center mt-2"
-              style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.2), rgba(239,68,68,0.04))', boxShadow: '0 0 0 1px rgba(239,68,68,0.3), 0 0 40px rgba(239,68,68,0.12)' }}
-            >
-              <XCircle className="w-10 h-10 text-red-400" />
-            </div>
-
-            <div>
-              <h3 className="font-orbitron text-xl font-black text-red-400 mb-1">Order Rejected</h3>
-              <p className="text-gray-500 font-inter text-xs">Verification failed — see details below</p>
-            </div>
-
-            {/* Rejection message */}
-            <div className="w-full p-4 rounded-xl bg-red-500/8 border border-red-500/25 text-left">
-              <p className="font-rajdhani text-sm font-bold text-red-300 leading-relaxed">
-                {rejectionMessage()}
-              </p>
-            </div>
-
-            {/* Failure breakdown */}
-            <div className="w-full space-y-2">
-              <div className={`flex items-start gap-3 p-3 rounded-xl border ${outcome.screenshotOk ? 'border-green-500/25 bg-green-500/5' : 'border-red-500/25 bg-red-500/5'}`}>
-                {outcome.screenshotOk
-                  ? <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  : <XCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />}
-                <div>
-                  <p className={`font-rajdhani text-xs font-bold uppercase tracking-wider ${outcome.screenshotOk ? 'text-green-400' : 'text-red-400'}`}>
-                    Payment Screenshot
-                  </p>
-                  <p className="font-inter text-xs text-gray-500 mt-0.5">
-                    {outcome.screenshotOk ? 'Valid screenshot detected' : outcome.screenshotReason}
-                  </p>
-                </div>
-              </div>
-
-              <div className={`flex items-start gap-3 p-3 rounded-xl border ${outcome.instagramOk ? 'border-green-500/25 bg-green-500/5' : 'border-red-500/25 bg-red-500/5'}`}>
-                {outcome.instagramOk
-                  ? <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                  : <XCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />}
-                <div>
-                  <p className={`font-rajdhani text-xs font-bold uppercase tracking-wider ${outcome.instagramOk ? 'text-green-400' : 'text-red-400'}`}>
-                    Instagram Username
-                  </p>
-                  <p className="font-inter text-xs text-gray-500 mt-0.5">
-                    {outcome.instagramOk ? `@${instagram} — valid format` : outcome.instagramReason}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="w-full p-3 rounded-xl bg-amber-500/8 border border-amber-500/25 flex items-start gap-2.5">
-              <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="font-inter text-xs text-amber-300/80 leading-relaxed text-left">
-                If you believe this is an error, contact Jhojha Games directly with your payment proof.
-              </p>
-            </div>
-
-            <div className="w-full space-y-2">
-              <button
-                onClick={() => { setStep('form'); setOutcome(null); }}
-                className="order-btn w-full py-3 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2"
-              >
-                Try Again
-              </button>
-              <div className="grid grid-cols-2 gap-2">
-                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani font-bold uppercase tracking-widest text-xs hover:scale-[1.02] transition-all duration-300">
-                  <Instagram className="w-3.5 h-3.5" /> Instagram
-                </a>
-                <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold uppercase tracking-widest text-xs hover:scale-[1.02] transition-all duration-300">
-                  <Send className="w-3.5 h-3.5" /> Telegram
-                </a>
-              </div>
+            <h3 className="font-orbitron text-lg font-black text-white mb-2">Processing Payment</h3>
+            <p className="text-gray-400 font-inter text-sm mb-2">{verifyStatus}</p>
+            <div className="flex items-center gap-2 text-gray-600 font-inter text-xs">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Do not close this window…
             </div>
           </div>
         )}
 
-        {/* ── STEP 5: SUCCESS ── */}
+        {/* ── SUCCESS ── */}
         {step === 'success' && (
           <div className="p-6 flex flex-col items-center text-center space-y-5">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center mt-2"
-              style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.2), rgba(34,197,94,0.05))', boxShadow: '0 0 0 1px rgba(34,197,94,0.3), 0 0 40px rgba(34,197,94,0.15)' }}
-            >
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mt-2" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.2), rgba(34,197,94,0.05))', boxShadow: '0 0 0 1px rgba(34,197,94,0.3), 0 0 40px rgba(34,197,94,0.15)' }}>
               <CheckCircle2 className="w-10 h-10 text-green-400" />
             </div>
 
@@ -569,13 +433,15 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
               </div>
             </div>
 
-            {/* Verification badges */}
             <div className="flex gap-2 flex-wrap justify-center">
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 font-rajdhani text-xs font-bold uppercase tracking-wider">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Screenshot Verified
+                <CheckCircle2 className="w-3.5 h-3.5" /> Payment Verified
               </span>
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 font-rajdhani text-xs font-bold uppercase tracking-wider">
-                <AtSign className="w-3.5 h-3.5" /> Instagram Verified
+                <CheckCircle2 className="w-3.5 h-3.5" /> Order Confirmed
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 font-rajdhani text-xs font-bold uppercase tracking-wider">
+                <Loader2 className="w-3.5 h-3.5" /> Delivery Processing
               </span>
             </div>
 
@@ -583,33 +449,87 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
               <p className="font-inter text-sm text-gray-300 leading-relaxed">
                 ✅ Payment verified successfully. Order accepted. Your game delivery is being processed.
               </p>
-              <p className="font-inter text-xs text-gray-500 leading-relaxed mt-2">
-                Please contact <span className="text-yellow-400 font-semibold">@jhojha.games</span> on Instagram or{' '}
-                <span className="text-blue-400 font-semibold">@JhojhaGames</span> on Telegram with your payment screenshot to receive your game.
+              <p className="font-inter text-xs text-gray-500 mt-2">
+                Contact <span className="text-yellow-400 font-semibold">@jhojha.games</span> on Instagram or{' '}
+                <span className="text-blue-400 font-semibold">@JhojhaGames</span> on Telegram for delivery status.
               </p>
             </div>
 
-            <div className="w-full p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/15 space-y-2 text-left">
-              <p className="font-rajdhani text-xs font-bold text-yellow-500 uppercase tracking-widest mb-2">Order Summary</p>
-              <div className="space-y-1.5">
-                <div className="flex justify-between"><span className="text-gray-500 font-inter text-xs">Name</span><span className="text-white font-inter text-xs font-medium">{name}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500 font-inter text-xs">Instagram</span><span className="text-white font-inter text-xs font-medium">@{instagram}</span></div>
-                {telegram && <div className="flex justify-between"><span className="text-gray-500 font-inter text-xs">Telegram</span><span className="text-white font-inter text-xs font-medium">@{telegram}</span></div>}
-                <div className="flex justify-between"><span className="text-gray-500 font-inter text-xs">Game</span><span className="text-yellow-400 font-inter text-xs font-bold">{gameName}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500 font-inter text-xs">Amount Paid</span><span className="text-yellow-500 font-orbitron text-xs font-black">₹{price.toLocaleString('en-IN')}</span></div>
-              </div>
+            <div className="w-full p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/15 space-y-1.5 text-left">
+              <p className="font-rajdhani text-xs font-bold text-yellow-500 uppercase tracking-widest mb-2">Order Details</p>
+              {[
+                ['Customer', name],
+                ['Instagram', `@${instagram}`],
+                ...(telegram ? [['Telegram', `@${telegram}`]] : []),
+                ['Email', email],
+                ['Game', gameName],
+                ['Amount Paid', `₹${price.toLocaleString('en-IN')}`],
+                ...(orderId ? [['Order ID', `#${orderId}`]] : []),
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between">
+                  <span className="text-gray-500 font-inter text-xs">{k}</span>
+                  <span className={`font-inter text-xs font-medium ${k === 'Amount Paid' ? 'text-yellow-500 font-orbitron font-black' : k === 'Game' ? 'text-yellow-400' : 'text-white'}`}>{v}</span>
+                </div>
+              ))}
             </div>
 
-            <div className="w-full space-y-3">
-              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] hover:scale-[1.02] transition-all duration-300">
+            <div className="w-full space-y-2">
+              <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani font-bold uppercase tracking-widest text-sm hover:scale-[1.02] transition-all duration-300">
                 <Instagram className="w-4 h-4" /> Contact on Instagram
               </a>
-              <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold uppercase tracking-widest text-sm hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] hover:scale-[1.02] transition-all duration-300">
+              <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold uppercase tracking-widest text-sm hover:scale-[1.02] transition-all duration-300">
                 <Send className="w-4 h-4" /> Join Telegram
               </a>
             </div>
-
             <button onClick={onClose} className="text-gray-600 font-inter text-xs hover:text-gray-400 transition-colors">Close</button>
+          </div>
+        )}
+
+        {/* ── FAILED ── */}
+        {step === 'failed' && (
+          <div className="p-6 flex flex-col items-center text-center space-y-5">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mt-2" style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.2), rgba(239,68,68,0.04))', boxShadow: '0 0 0 1px rgba(239,68,68,0.3), 0 0 40px rgba(239,68,68,0.12)' }}>
+              <XCircle className="w-10 h-10 text-red-400" />
+            </div>
+            <div>
+              <h3 className="font-orbitron text-xl font-black text-red-400 mb-1">Payment Failed</h3>
+              <p className="text-gray-500 font-inter text-xs">Transaction could not be completed</p>
+            </div>
+
+            <div className="w-full space-y-2">
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/8 border border-red-500/20">
+                <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                <span className="text-red-300 font-rajdhani text-sm font-bold">❌ Payment Failed</span>
+              </div>
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/8 border border-red-500/20">
+                <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                <span className="text-red-300 font-rajdhani text-sm font-bold">❌ Invalid Transaction</span>
+              </div>
+              <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/8 border border-red-500/20">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                <span className="text-amber-300 font-rajdhani text-sm font-bold">❌ Please Try Again</span>
+              </div>
+            </div>
+
+            {failReason && (
+              <div className="w-full p-3 rounded-xl bg-white/3 border border-white/8 text-left">
+                <p className="font-inter text-xs text-gray-400">{failReason}</p>
+              </div>
+            )}
+
+            <div className="w-full space-y-2">
+              <button onClick={() => { paying.current = false; setStep('payment'); setFailReason(''); }} className="order-btn w-full py-3.5 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+                Try Again
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani font-bold uppercase tracking-widest text-xs hover:scale-[1.02] transition-all">
+                  <Instagram className="w-3.5 h-3.5" /> Instagram
+                </a>
+                <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold uppercase tracking-widest text-xs hover:scale-[1.02] transition-all">
+                  <Send className="w-3.5 h-3.5" /> Telegram
+                </a>
+              </div>
+            </div>
           </div>
         )}
       </div>

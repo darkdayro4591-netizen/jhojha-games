@@ -17,6 +17,11 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/api\/steam/, ''),
       },
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });
