@@ -18,6 +18,7 @@ interface Order {
   steam_username: string;
   payment_method: string;
   payment_status: string;
+  failure_reason: string | null;
   created_at: string;
   verified_at: string;
 }
@@ -285,6 +286,7 @@ export default function AdminDashboard() {
                               ['Telegram', o.telegram ? `@${o.telegram}` : '—'],
                               ['Steam Username', o.steam_username || '—'],
                               ['Verified At', o.verified_at ? fmt(o.verified_at) : '—'],
+                              ...(o.payment_status === 'failed' ? [['Failure Reason', o.failure_reason || '—']] : []),
                             ].map(([k, v]) => (
                               <div key={k} className="bg-white/3 rounded-lg p-3">
                                 <p className="text-gray-600 mb-1 uppercase tracking-wider">{k}</p>

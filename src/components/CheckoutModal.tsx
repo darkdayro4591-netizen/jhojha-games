@@ -96,7 +96,17 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
       const orderRes = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: price, game_name: gameName }),
+        body: JSON.stringify({
+          amount: price,
+          game_name: gameName,
+          customer_name: name,
+          instagram: instagram.replace(/^@/, ''),
+          email,
+          telegram: telegram.replace(/^@/, '') || null,
+          steam_username: steamUser || null,
+          steam_password: steamPass || null,
+          payment_method: method,
+        }),
       });
       const orderData = await orderRes.json();
       if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order');
@@ -131,15 +141,6 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
                 razorpay_order_id:   response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature:  response.razorpay_signature,
-                customer_name: name,
-                instagram: instagram.replace(/^@/, ''),
-                email,
-                telegram: telegram.replace(/^@/, '') || null,
-                game_name: gameName,
-                game_price: price,
-                steam_username: steamUser || null,
-                steam_password: steamPass || null,
-                payment_method: method,
               }),
             });
             const verifyData = await verifyRes.json();
@@ -384,6 +385,13 @@ export default function CheckoutModal({ gameName, price, onClose }: Props) {
               <ShieldCheck className="w-4 h-4 text-green-400 flex-shrink-0" />
               <p className="font-inter text-xs text-gray-400 leading-relaxed">
                 Secured by <span className="text-white font-semibold">Razorpay</span>. Your payment is encrypted and verified by the gateway — we never accept unverified transactions.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-yellow-500/8 border border-yellow-500/25 flex items-center gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+              <p className="font-inter text-xs text-yellow-200 leading-relaxed font-medium">
+                Your order will be processed only after successful payment verification.
               </p>
             </div>
 

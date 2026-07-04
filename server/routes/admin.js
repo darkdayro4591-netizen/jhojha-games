@@ -17,7 +17,7 @@ router.get('/orders', authMiddleware, async (req, res) => {
       id, razorpay_order_id, razorpay_payment_id,
       customer_name, instagram, email, telegram,
       game_name, game_price, steam_username,
-      payment_method, payment_status,
+      payment_method, payment_status, failure_reason,
       created_at, verified_at
     FROM orders`;
     const params = [];

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   ShieldCheck, Smartphone, Wallet, QrCode, Upload, Instagram,
-  Send, CheckCircle2, CreditCard, Zap, Headphones, Star,
+  Send, CheckCircle2, CreditCard, Zap, Headphones, Star, Clock,
 } from 'lucide-react';
 
 const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
@@ -186,13 +186,13 @@ export default function PaymentSection() {
                 <Upload className="w-4 h-4" />
                 Upload Payment Screenshot
               </h3>
-              <label className={`group flex flex-col items-center justify-center gap-3 w-full py-8 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${uploaded ? 'border-green-500/60 bg-green-500/5' : 'border-yellow-500/25 bg-yellow-500/3 hover:border-yellow-500/50 hover:bg-yellow-500/8'}`}>
+              <label className={`group flex flex-col items-center justify-center gap-3 w-full py-8 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${uploaded ? 'border-yellow-500/60 bg-yellow-500/5' : 'border-yellow-500/25 bg-yellow-500/3 hover:border-yellow-500/50 hover:bg-yellow-500/8'}`}>
                 <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
                 {uploaded ? (
                   <>
-                    <CheckCircle2 className="w-10 h-10 text-green-400" />
+                    <Clock className="w-10 h-10 text-yellow-400" />
                     <div className="text-center">
-                      <p className="font-rajdhani text-sm font-bold text-green-400 uppercase tracking-wider">Screenshot Uploaded!</p>
+                      <p className="font-rajdhani text-sm font-bold text-yellow-400 uppercase tracking-wider">Pending Verification</p>
                       <p className="font-inter text-xs text-gray-500 mt-1 truncate max-w-[200px]">{fileName}</p>
                     </div>
                     <span className="text-xs text-gray-500 font-inter">Click to change</span>
@@ -211,15 +211,23 @@ export default function PaymentSection() {
                 )}
               </label>
               {uploaded && (
-                <a
-                  href={`${TELEGRAM_URL}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400 font-rajdhani text-xs font-bold uppercase tracking-wider hover:bg-blue-500/25 transition-all duration-300"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  Send on Telegram
-                </a>
+                <>
+                  <div className="mt-3 flex items-start gap-2.5 p-3 rounded-xl bg-yellow-500/8 border border-yellow-500/25">
+                    <Clock className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <p className="font-inter text-xs text-yellow-200 leading-relaxed">
+                      A screenshot alone does not confirm your order. Your order will be processed only after our team manually verifies the payment — send it to us below.
+                    </p>
+                  </div>
+                  <a
+                    href={`${TELEGRAM_URL}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400 font-rajdhani text-xs font-bold uppercase tracking-wider hover:bg-blue-500/25 transition-all duration-300"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    Send on Telegram
+                  </a>
+                </>
               )}
             </div>
           </div>
