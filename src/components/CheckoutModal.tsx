@@ -26,8 +26,8 @@ interface RazorpayOptions {
   handler?: (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => void;
 }
 
-const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
-const TELEGRAM_URL  = 'https://t.me/jhojhagames';
+const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
+const TELEGRAM_URL  = 'https://t.me/JhojhaGames';
 
 type Step = 'details' | 'payment' | 'verifying' | 'success' | 'failed';
 type PayMethod = 'upi' | 'phonepe' | 'gpay' | 'paytm';

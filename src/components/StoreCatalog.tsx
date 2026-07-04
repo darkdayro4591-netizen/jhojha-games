@@ -3,8 +3,8 @@ import { ShoppingCart, Instagram, Send, Star, Trash2, X, Calendar, ExternalLink,
 import type { CatalogEntry } from '../hooks/useSteamCatalog';
 import CheckoutModal from './CheckoutModal';
 
-const TELEGRAM_URL = 'https://t.me/jhojhagames';
-const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
+const TELEGRAM_URL = 'https://t.me/JhojhaGames';
+const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
 
 interface Props {
   catalog: CatalogEntry[];

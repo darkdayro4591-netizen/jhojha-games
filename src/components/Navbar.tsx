@@ -7,6 +7,7 @@ const navLinks = [
   { label: 'Deals', href: '#deals' },
   { label: 'Reviews', href: '#reviews' },
   { label: 'FAQ', href: '#faq' },
+  { label: 'Need Help', href: '#help' },
   { label: 'Contact', href: '#contact' },
 ];
 
@@ -72,10 +73,10 @@ export default function Navbar({ onSearchOpen }: NavbarProps) {
               <span className="font-inter text-xs text-gray-500">Search games...</span>
               <kbd className="hidden xl:inline-block px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-gray-600 font-mono text-[10px]">⌘K</kbd>
             </button>
-            <a href="https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-lg bg-white/5 border border-yellow-500/20 text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all duration-300" aria-label="Instagram">
+            <a href="https://instagram.com/jhojha.games" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-lg bg-white/5 border border-yellow-500/20 text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all duration-300" aria-label="Instagram">
               <Instagram className="w-5 h-5" />
             </a>
-            <a href="https://t.me/jhojhagames" target="_blank" rel="noopener noreferrer" className="btn-gold px-5 py-2.5 rounded-lg text-sm font-rajdhani font-700 uppercase tracking-wider flex items-center gap-2">
+            <a href="https://t.me/JhojhaGames" target="_blank" rel="noopener noreferrer" className="btn-gold px-5 py-2.5 rounded-lg text-sm font-rajdhani font-700 uppercase tracking-wider flex items-center gap-2">
               <Send className="w-4 h-4" /> Join
             </a>
           </div>
@@ -105,10 +106,10 @@ export default function Navbar({ onSearchOpen }: NavbarProps) {
             <button key={link.label} onClick={() => handleNavClick(link.href)} className={`block w-full text-left px-4 py-3 rounded-lg font-rajdhani text-sm font-600 uppercase tracking-widest transition-all duration-300 ${activeSection === link.href.replace('#', '') ? 'text-yellow-500 bg-yellow-500/10' : 'text-gray-300 hover:text-yellow-500 hover:bg-yellow-500/5'}`}>{link.label}</button>
           ))}
           <div className="flex gap-3 mt-3">
-            <a href="https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1" target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-4 py-3 rounded-lg bg-white/5 border border-yellow-500/20 text-gray-300 hover:text-yellow-500 hover:border-yellow-500/50 transition-all font-rajdhani text-sm font-700 uppercase tracking-wider flex items-center justify-center gap-2">
+            <a href="https://instagram.com/jhojha.games" target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-4 py-3 rounded-lg bg-white/5 border border-yellow-500/20 text-gray-300 hover:text-yellow-500 hover:border-yellow-500/50 transition-all font-rajdhani text-sm font-700 uppercase tracking-wider flex items-center justify-center gap-2">
               <Instagram className="w-4 h-4" /> Instagram
             </a>
-            <a href="https://t.me/jhojhagames" target="_blank" rel="noopener noreferrer" className="flex-1 btn-gold text-center px-4 py-3 rounded-lg text-sm font-rajdhani font-700 uppercase tracking-wider flex items-center justify-center gap-2">
+            <a href="https://t.me/JhojhaGames" target="_blank" rel="noopener noreferrer" className="flex-1 btn-gold text-center px-4 py-3 rounded-lg text-sm font-rajdhani font-700 uppercase tracking-wider flex items-center justify-center gap-2">
               <Send className="w-4 h-4" /> Join
             </a>
           </div>

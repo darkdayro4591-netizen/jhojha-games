@@ -91,7 +91,7 @@ export default function FAQ() {
         <div className="text-center mt-10">
           <p className="text-gray-400 font-inter mb-4">Still have questions?</p>
           <a
-            href="https://t.me/jhojhagames"
+            href="https://t.me/JhojhaGames"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-outline-gold inline-flex items-center gap-2 px-6 py-3 rounded-lg font-rajdhani text-sm font-700 uppercase tracking-widest"

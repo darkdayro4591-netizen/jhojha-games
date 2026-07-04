@@ -1,6 +1,6 @@
 import { Instagram, Heart, MessageCircle, ArrowRight } from 'lucide-react';
 
-const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
+const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
 
 const posts = [
   {

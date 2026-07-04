@@ -2,14 +2,16 @@ import { useState, useMemo } from 'react';
 import {
   Instagram, Send, MessageCircle, Flame, Wallet, Target,
   Headphones, ChevronRight, CheckCircle2, Gamepad2, Star,
-  ShoppingCart, ArrowRight, Zap,
+  ShoppingCart, ArrowRight, Zap, Copy, Check, Loader2,
 } from 'lucide-react';
 import games from '../data/games';
 import CheckoutModal from './CheckoutModal';
 
-const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
-const TELEGRAM_URL  = 'https://t.me/jhojhagames';
+const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
+const TELEGRAM_URL  = 'https://t.me/JhojhaGames';
 const WHATSAPP_URL  = 'https://wa.me/message/jhojhagames';
+const INSTAGRAM_USERNAME = 'jhojha.games';
+const TELEGRAM_USERNAME  = 'JhojhaGames';
 
 const CATEGORIES = ['Action', 'Horror', 'Racing', 'Open World', 'RPG', 'Multiplayer'];
 
@@ -61,7 +63,9 @@ export default function Contact() {
   const [activeCard, setActiveCard]       = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [submitted, setSubmitted]         = useState(false);
+  const [submitting, setSubmitting]       = useState(false);
   const [checkoutGame, setCheckoutGame]   = useState<CheckoutGame | null>(null);
+  const [copied, setCopied]               = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: '', instagram: '', budget: '', genre: '', message: '',
@@ -98,12 +102,33 @@ export default function Contact() {
     if (!form.budget) errs.budget = 'Select your budget';
     if (!form.genre) errs.genre = 'Select a genre';
     setFormErrors(errs);
-    if (Object.keys(errs).length === 0) setSubmitted(true);
+    if (Object.keys(errs).length === 0) {
+      setSubmitting(true);
+      setTimeout(() => {
+        setSubmitting(false);
+        setSubmitted(true);
+      }, 1200);
+    }
+  };
+
+  const handleCopy = async (value: string, key: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      const el = document.createElement('textarea');
+      el.value = value;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+    setCopied(key);
+    setTimeout(() => setCopied(prev => (prev === key ? null : prev)), 1800);
   };
 
   return (
     <>
-      <section id="contact" className="relative py-20 lg:py-28 overflow-hidden">
+      <section id="help" className="relative py-20 lg:py-28 overflow-hidden scroll-mt-20 lg:scroll-mt-24">
         {/* Background */}
         <div className="absolute inset-0 hex-bg" />
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-yellow-500/30 to-transparent" />
@@ -112,7 +137,7 @@ export default function Contact() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* ── HEADER ── */}
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 mb-5">
               <Gamepad2 className="w-3.5 h-3.5 text-yellow-500" />
               <span className="text-yellow-500 text-xs font-rajdhani font-bold uppercase tracking-widest">Game Advisor</span>
@@ -124,6 +149,26 @@ export default function Contact() {
             <p className="text-gray-400 font-inter text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
               Our team will help you find the perfect game based on your budget and interests.
             </p>
+          </div>
+
+          {/* ── QUICK CONTACT CTAs ── */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani font-bold text-sm uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_25px_rgba(236,72,153,0.4)] transition-all duration-200"
+            >
+              <Instagram className="w-4 h-4" /> Message Us
+            </a>
+            <a
+              href={TELEGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold text-sm uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] transition-all duration-200"
+            >
+              <Send className="w-4 h-4" /> Join Telegram
+            </a>
           </div>
 
           {/* ── SUPPORT CARDS ── */}
@@ -265,7 +310,7 @@ export default function Contact() {
                     <div>
                       <h3 className="font-orbitron text-lg font-black text-green-400 mb-2">Request Sent!</h3>
                       <p className="text-gray-400 font-inter text-sm leading-relaxed max-w-sm">
-                        Thank you! Our team will contact you shortly on Instagram with the best game recommendations for you.
+                        Thank you for contacting Jhojha Games. We will reply shortly.
                       </p>
                     </div>
                     <button
@@ -354,11 +399,21 @@ export default function Contact() {
 
                       <button
                         type="submit"
-                        className="order-btn w-full py-3.5 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform"
+                        disabled={submitting}
+                        className="order-btn w-full py-3.5 rounded-xl font-orbitron font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-transform disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        <Target className="w-4 h-4" />
-                        Get Game Recommendations
-                        <ArrowRight className="w-4 h-4" />
+                        {submitting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Target className="w-4 h-4" />
+                            Get Game Recommendations
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
                       </button>
                     </form>
                   </>
@@ -376,28 +431,44 @@ export default function Contact() {
               </div>
               <p className="text-gray-400 font-inter text-sm">We respond within minutes on all platforms. Choose your preferred way to reach us:</p>
               <div className="space-y-3">
-                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-white/3 border border-white/8 hover:border-purple-500/40 hover:bg-purple-500/5 transition-all duration-200 group">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-pink-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
-                    <Instagram className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-rajdhani font-bold text-white text-sm group-hover:text-purple-400 transition-colors">Instagram</p>
-                    <p className="text-gray-500 text-xs">@jhojha.games · DM for support</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-purple-400 transition-colors" />
-                </a>
-                <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-white/3 border border-white/8 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all duration-200 group">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
-                    <Send className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-rajdhani font-bold text-white text-sm group-hover:text-blue-400 transition-colors">Telegram</p>
-                    <p className="text-gray-500 text-xs">@jhojhagames · Fast responses</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
-                </a>
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-white/3 border border-white/8 hover:border-purple-500/40 hover:bg-purple-500/5 transition-all duration-200 group">
+                  <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-pink-500 to-yellow-500 flex items-center justify-center flex-shrink-0">
+                      <Instagram className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-rajdhani font-bold text-white text-sm group-hover:text-purple-400 transition-colors">Instagram</p>
+                      <p className="text-gray-500 text-xs">@{INSTAGRAM_USERNAME} · DM for support</p>
+                    </div>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(`@${INSTAGRAM_USERNAME}`, 'panel-instagram')}
+                    aria-label="Copy Instagram username"
+                    className="p-2 rounded-lg text-gray-500 hover:text-purple-400 hover:bg-white/5 transition-colors flex-shrink-0"
+                  >
+                    {copied === 'panel-instagram' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-white/3 border border-white/8 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all duration-200 group">
+                  <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0">
+                      <Send className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-rajdhani font-bold text-white text-sm group-hover:text-blue-400 transition-colors">Telegram</p>
+                      <p className="text-gray-500 text-xs">@{TELEGRAM_USERNAME} · Fast responses</p>
+                    </div>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(`@${TELEGRAM_USERNAME}`, 'panel-telegram')}
+                    aria-label="Copy Telegram username"
+                    className="p-2 rounded-lg text-gray-500 hover:text-blue-400 hover:bg-white/5 transition-colors flex-shrink-0"
+                  >
+                    {copied === 'panel-telegram' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
                 <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-4 p-4 rounded-xl bg-white/3 border border-white/8 hover:border-green-500/40 hover:bg-green-500/5 transition-all duration-200 group">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center flex-shrink-0">
@@ -413,37 +484,83 @@ export default function Contact() {
             </div>
           )}
 
-          {/* ── BOTTOM CONTACT BUTTONS (always visible) ── */}
-          <div className="max-w-3xl mx-auto">
-            <div className="p-5 sm:p-6 rounded-2xl border border-yellow-500/15 bg-gradient-to-r from-yellow-500/8 via-yellow-500/4 to-transparent">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
-                <div className="flex items-center gap-4 text-center sm:text-left">
-                  <div className="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-6 h-6 text-yellow-500" />
-                  </div>
-                  <div>
-                    <h4 className="font-rajdhani text-base font-bold text-white">Still not sure? Talk to us!</h4>
-                    <p className="text-gray-500 font-inter text-xs mt-0.5">Our team responds within minutes ⚡</p>
-                  </div>
+        </div>
+      </section>
+
+      {/* ── CONTACT US SECTION (always visible) ── */}
+      <section id="contact" className="relative py-16 lg:py-20 overflow-hidden scroll-mt-20 lg:scroll-mt-24">
+        <div className="absolute inset-0 hex-bg" />
+        <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h3 className="font-orbitron text-2xl sm:text-3xl font-black text-white mb-2">
+              Contact <span className="text-yellow-500 gold-glow">Us</span>
+            </h3>
+            <p className="text-gray-400 font-inter text-sm sm:text-base">Reach us instantly on your favorite platform.</p>
+          </div>
+
+          <div className="p-5 sm:p-6 rounded-2xl border border-yellow-500/15 bg-gradient-to-r from-yellow-500/8 via-yellow-500/4 to-transparent mb-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-5">
+              <div className="flex items-center gap-4 text-center sm:text-left">
+                <div className="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center flex-shrink-0">
+                  <MessageCircle className="w-6 h-6 text-yellow-500" />
                 </div>
-                <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
-                  <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all duration-200">
-                    <Instagram className="w-3.5 h-3.5" /> Instagram
-                  </a>
-                  <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-200">
-                    <Send className="w-3.5 h-3.5" /> Telegram
-                  </a>
-                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all duration-200">
-                    <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-                  </a>
+                <div>
+                  <h4 className="font-rajdhani text-base font-bold text-white">Still not sure? Talk to us!</h4>
+                  <p className="text-gray-500 font-inter text-xs mt-0.5">Our team responds within minutes ⚡</p>
                 </div>
+              </div>
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 via-pink-500 to-yellow-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(236,72,153,0.4)] transition-all duration-200">
+                  <Instagram className="w-3.5 h-3.5" /> Instagram
+                </a>
+                <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-200">
+                  <Send className="w-3.5 h-3.5" /> Telegram
+                </a>
+                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all duration-200">
+                  <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+                </a>
               </div>
             </div>
           </div>
 
+          {/* ── CLICK-TO-COPY USERNAMES ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => handleCopy(`@${INSTAGRAM_USERNAME}`, 'bottom-instagram')}
+              className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/3 border border-white/8 hover:border-purple-500/40 hover:bg-purple-500/5 transition-all duration-200 group"
+            >
+              <span className="flex items-center gap-2 text-gray-300 font-inter text-sm">
+                <Instagram className="w-4 h-4 text-purple-400" /> @{INSTAGRAM_USERNAME}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-rajdhani font-bold uppercase tracking-wider text-gray-500 group-hover:text-purple-400 transition-colors">
+                {copied === 'bottom-instagram' ? (
+                  <><Check className="w-3.5 h-3.5 text-green-400" /> Copied</>
+                ) : (
+                  <><Copy className="w-3.5 h-3.5" /> Copy</>
+                )}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleCopy(`@${TELEGRAM_USERNAME}`, 'bottom-telegram')}
+              className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-white/3 border border-white/8 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all duration-200 group"
+            >
+              <span className="flex items-center gap-2 text-gray-300 font-inter text-sm">
+                <Send className="w-4 h-4 text-blue-400" /> @{TELEGRAM_USERNAME}
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-rajdhani font-bold uppercase tracking-wider text-gray-500 group-hover:text-blue-400 transition-colors">
+                {copied === 'bottom-telegram' ? (
+                  <><Check className="w-3.5 h-3.5 text-green-400" /> Copied</>
+                ) : (
+                  <><Copy className="w-3.5 h-3.5" /> Copy</>
+                )}
+              </span>
+            </button>
+          </div>
         </div>
       </section>
 

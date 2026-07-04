@@ -1,8 +1,8 @@
-import { Instagram, Send, Gamepad2, Heart } from 'lucide-react';
+import { Instagram, Send, Heart } from 'lucide-react';
 
 const footerLinks = {
   Company: ['Home', 'Games', 'Deals', 'Reviews'],
-  Support: ['FAQ', 'Contact', 'Terms & Conditions', 'Privacy Policy'],
+  Support: ['FAQ', 'Need Help', 'Contact', 'Terms & Conditions', 'Privacy Policy'],
   Categories: ['Action', 'Open World', 'Horror', 'Racing', 'RPG', 'Multiplayer'],
 };
 
@@ -32,7 +32,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-3">
               <a
-                href="https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1"
+                href="https://instagram.com/jhojha.games"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-white/5 border border-yellow-500/20 flex items-center justify-center text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all duration-300"
@@ -40,7 +40,7 @@ export default function Footer() {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://t.me/jhojhagames"
+                href="https://t.me/JhojhaGames"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-lg bg-white/5 border border-yellow-500/20 flex items-center justify-center text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all duration-300"
@@ -60,7 +60,7 @@ export default function Footer() {
                 {links.map(link => (
                   <li key={link}>
                     <a
-                      href={link === 'Home' ? '#home' : link === 'Games' ? '#games' : link === 'Deals' ? '#deals' : link === 'Reviews' ? '#reviews' : link === 'FAQ' ? '#faq' : link === 'Contact' ? '#contact' : '#'}
+                      href={link === 'Home' ? '#home' : link === 'Games' ? '#games' : link === 'Deals' ? '#deals' : link === 'Reviews' ? '#reviews' : link === 'FAQ' ? '#faq' : link === 'Need Help' ? '#help' : link === 'Contact' ? '#contact' : '#'}
                       className="text-gray-400 font-inter text-sm hover:text-yellow-500 transition-colors duration-300"
                     >
                       {link}

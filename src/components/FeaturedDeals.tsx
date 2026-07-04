@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Flame, ShoppingCart, Instagram, Send } from 'lucide-react';
 import CheckoutModal from './CheckoutModal';
 
-const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
-const TELEGRAM_URL = 'https://t.me/jhojhagames';
+const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
+const TELEGRAM_URL = 'https://t.me/JhojhaGames';
 
 const deals = [
   {

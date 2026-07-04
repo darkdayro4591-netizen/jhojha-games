@@ -3,7 +3,7 @@ import { Send } from 'lucide-react';
 export default function TelegramButton() {
   return (
     <a
-      href="https://t.me/jhojhagames"
+      href="https://t.me/JhojhaGames"
       target="_blank"
       rel="noopener noreferrer"
       className="whatsapp-float group"

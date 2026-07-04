@@ -171,7 +171,7 @@ export default function Hero() {
             Browse Games
           </button>
           <a
-            href="https://t.me/jhojhagames"
+            href="https://t.me/JhojhaGames"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-outline-gold px-8 py-4 rounded-xl text-base font-rajdhani font-700 uppercase tracking-widest flex items-center justify-center gap-3"
