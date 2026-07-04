@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import {
   Instagram, Send, MessageCircle, Flame, Wallet, Target,
-  Headphones, ChevronRight, CheckCircle2, Gamepad2, Star,
+  Headphones, CheckCircle2, Gamepad2, Star,
   ShoppingCart, ArrowRight, Zap, Copy, Check, Loader2,
 } from 'lucide-react';
 import games from '../data/games';
@@ -9,7 +9,6 @@ import CheckoutModal from './CheckoutModal';
 
 const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
 const TELEGRAM_URL  = 'https://t.me/JhojhaGames';
-const WHATSAPP_URL  = 'https://wa.me/message/jhojhagames';
 const INSTAGRAM_USERNAME = 'jhojha.games';
 const TELEGRAM_USERNAME  = 'JhojhaGames';
 
@@ -469,17 +468,6 @@ export default function Contact() {
                     {copied === 'panel-telegram' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                   </button>
                 </div>
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-white/3 border border-white/8 hover:border-green-500/40 hover:bg-green-500/5 transition-all duration-200 group">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center flex-shrink-0">
-                    <MessageCircle className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-rajdhani font-bold text-white text-sm group-hover:text-green-400 transition-colors">WhatsApp Support</p>
-                    <p className="text-gray-500 text-xs">Chat directly with our team</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-green-400 transition-colors" />
-                </a>
               </div>
             </div>
           )}
@@ -517,10 +505,6 @@ export default function Contact() {
                 <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-200">
                   <Send className="w-3.5 h-3.5" /> Telegram
-                </a>
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-500 text-white font-rajdhani font-bold text-xs uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all duration-200">
-                  <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                 </a>
               </div>
             </div>

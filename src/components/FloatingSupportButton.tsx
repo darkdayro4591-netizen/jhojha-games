@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Instagram, Send, X, Headphones, MessageCircle } from 'lucide-react';
+import { Instagram, Send, X, Headphones } from 'lucide-react';
 
 const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
 const TELEGRAM_URL  = 'https://t.me/JhojhaGames';
-const WHATSAPP_URL  = 'https://wa.me/message/jhojhagames';
 
 export default function FloatingSupportButton() {
   const [open, setOpen] = useState(false);
@@ -30,14 +29,6 @@ export default function FloatingSupportButton() {
       icon: Send,
       color: 'from-blue-600 to-sky-500',
       glow: 'rgba(59,130,246,0.4)',
-    },
-    {
-      href: WHATSAPP_URL,
-      label: 'WhatsApp',
-      sublabel: 'Quick Support',
-      icon: MessageCircle,
-      color: 'from-green-600 to-emerald-500',
-      glow: 'rgba(34,197,94,0.4)',
     },
   ];
 

@@ -265,8 +265,8 @@ body {
   background: linear-gradient(90deg, transparent, rgba(245, 166, 35, 0.5), transparent);
 }
 
-/* WhatsApp button */
-.whatsapp-float {
+/* Telegram button */
+.telegram-float {
   position: fixed;
   bottom: 24px;
   right: 24px;

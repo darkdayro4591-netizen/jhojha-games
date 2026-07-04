@@ -6,7 +6,7 @@ export default function TelegramButton() {
       href="https://t.me/JhojhaGames"
       target="_blank"
       rel="noopener noreferrer"
-      className="whatsapp-float group"
+      className="telegram-float group"
       aria-label="Chat on Telegram"
     >
       <div className="relative">
