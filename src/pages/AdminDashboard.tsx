@@ -82,6 +82,7 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState('');
   const [authed,   setAuthed]   = useState(false);
   const [authError, setAuthError] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
   const [showPass,  setShowPass]  = useState(false);
 
   // Tab
@@ -187,14 +188,27 @@ export default function AdminDashboard() {
 
   const handleLogin = async () => {
     setAuthError('');
-    const res = await fetch('/api/admin/stats', { headers: { 'x-admin-password': password } });
-    if (res.status === 401) { setAuthError('Wrong password'); return; }
-    if (res.status === 503) { setAuthError('Admin not configured on server'); return; }
-    sessionStorage.setItem('jhojha_admin_pass', password);
-    sessionStorage.setItem('jhojha_owner_session', '1');
-    window.dispatchEvent(new Event('owner-login-status'));
-    setAuthed(true);
-    fetchData(password);
+    const enteredPassword = password.trim();
+    if (!enteredPassword) {
+      setAuthError('Enter the admin password');
+      return;
+    }
+    setAuthLoading(true);
+    try {
+      const res = await fetch('/api/admin/stats', { headers: { 'x-admin-password': enteredPassword } });
+      if (res.status === 401) { setAuthError('Wrong password'); return; }
+      if (res.status === 503) { setAuthError('Admin not configured on server'); return; }
+      if (!res.ok) { setAuthError('Admin login is temporarily unavailable'); return; }
+      sessionStorage.setItem('jhojha_admin_pass', enteredPassword);
+      sessionStorage.setItem('jhojha_owner_session', '1');
+      window.dispatchEvent(new Event('owner-login-status'));
+      setAuthed(true);
+      fetchData(enteredPassword);
+    } catch {
+      setAuthError('Admin login is temporarily unavailable');
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   // ── Order actions ─────────────────────────────────────────────────────────
@@ -372,8 +386,12 @@ export default function AdminDashboard() {
             </button>
           </div>
           {authError && <p className="text-red-400 text-xs mb-3">{authError}</p>}
-          <button onClick={handleLogin} className="w-full py-3 rounded-xl bg-yellow-500 text-black font-bold uppercase tracking-widest text-sm hover:bg-yellow-400 transition-colors">
-            Login
+          <button
+            onClick={handleLogin}
+            disabled={authLoading}
+            className="w-full py-3 rounded-xl bg-yellow-500 text-black font-bold uppercase tracking-widest text-sm hover:bg-yellow-400 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {authLoading ? 'Checking...' : 'Login'}
           </button>
           <a href="/" className="block text-center text-gray-600 text-xs mt-4 hover:text-gray-400 transition-colors">← Back to store</a>
         </div>
