@@ -19,6 +19,7 @@ import StoreCatalog from './components/StoreCatalog';
 import SteamImport from './components/SteamImport';
 import SearchModal from './components/SearchModal';
 import AdminDashboard from './pages/AdminDashboard';
+import FloatingSupportButton from './components/FloatingSupportButton';
 import { useSteamCatalog } from './hooks/useSteamCatalog';
 import { Plus } from 'lucide-react';
 
@@ -84,6 +85,8 @@ export default function App() {
       {showSearch && (
         <SearchModal catalog={catalog} onClose={() => setShowSearch(false)} />
       )}
+
+      <FloatingSupportButton />
     </div>
   );
 }
