@@ -14,7 +14,7 @@ router.get('/orders', authMiddleware, async (req, res) => {
   try {
     const { status, limit = 100, offset = 0 } = req.query;
     let query = `SELECT
-      id, razorpay_order_id, razorpay_payment_id,
+      id, razorpay_order_id AS order_ref,
       customer_name, instagram, email, telegram,
       game_name, game_price, steam_username,
       payment_method, payment_status, failure_reason,

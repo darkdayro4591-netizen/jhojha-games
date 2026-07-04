@@ -14,7 +14,6 @@ app.use(express.json({ limit: '2mb' }));
 app.get('/api/health', (req, res) => {
   res.json({
     ok: true,
-    razorpay: !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET),
     admin: !!process.env.ADMIN_PASSWORD,
   });
 });
@@ -34,6 +33,5 @@ if (fs.existsSync(distPath)) {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Jhojha Games backend running on port ${PORT}`);
-  console.log(`Razorpay: ${process.env.RAZORPAY_KEY_ID ? '✅ configured' : '❌ not configured'}`);
   console.log(`Admin:    ${process.env.ADMIN_PASSWORD ? '✅ configured' : '❌ not configured'}`);
 });

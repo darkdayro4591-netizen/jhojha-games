@@ -7,8 +7,7 @@ import {
 
 interface Order {
   id: number;
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
+  order_ref: string;
   customer_name: string;
   instagram: string;
   email: string;
@@ -114,7 +113,7 @@ export default function AdminDashboard() {
       o.instagram?.toLowerCase().includes(q) ||
       o.email?.toLowerCase().includes(q) ||
       o.game_name?.toLowerCase().includes(q) ||
-      o.razorpay_payment_id?.toLowerCase().includes(q)
+      o.order_ref?.toLowerCase().includes(q)
     );
   });
 
@@ -281,8 +280,7 @@ export default function AdminDashboard() {
                         <td colSpan={9} className="px-6 py-4">
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                             {[
-                              ['Razorpay Order ID', o.razorpay_order_id],
-                              ['Payment ID', o.razorpay_payment_id || '—'],
+                              ['Order Ref', o.order_ref],
                               ['Telegram', o.telegram ? `@${o.telegram}` : '—'],
                               ['Steam Username', o.steam_username || '—'],
                               ['Verified At', o.verified_at ? fmt(o.verified_at) : '—'],
@@ -327,8 +325,8 @@ export default function AdminDashboard() {
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                {o.razorpay_payment_id && (
-                  <p className="text-gray-700 font-mono text-xs break-all">{o.razorpay_payment_id}</p>
+                {o.order_ref && (
+                  <p className="text-gray-700 font-mono text-xs break-all">{o.order_ref}</p>
                 )}
               </div>
             ))}

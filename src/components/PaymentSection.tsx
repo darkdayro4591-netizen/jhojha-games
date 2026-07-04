@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   ShieldCheck, Smartphone, Wallet, QrCode, Upload, Instagram,
-  Send, CheckCircle2, CreditCard, Zap, Headphones, Star, Clock,
+  Send, CreditCard, Zap, Headphones, Star, Clock,
 } from 'lucide-react';
 
 const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';

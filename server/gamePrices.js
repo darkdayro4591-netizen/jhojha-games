@@ -5,10 +5,10 @@
 //
 // Games that are not in this list (e.g. dynamically added via the Steam
 // import/admin catalog tool) are not statically known ahead of time. For
-// those, the server still enforces that the amount actually paid (per
-// Razorpay's own order record) exactly matches the amount that was recorded
-// in our database at order-creation time — the client can never change the
-// amount mid-flow.
+// those, the server trusts the client-reported amount since there is no
+// payment gateway to independently verify it against — the admin must
+// manually confirm the amount received matches the order before marking it
+// Verified.
 const GAME_PRICES = {
   'GTA VI Pre-Order Standard Edition': 5999,
   'The Last of Us Part I': 279,
