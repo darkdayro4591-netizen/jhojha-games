@@ -15,21 +15,15 @@ import InstagramSection from './components/InstagramSection';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import TelegramButton from './components/TelegramButton';
-import StoreCatalog from './components/StoreCatalog';
-import SteamImport from './components/SteamImport';
 import SearchModal from './components/SearchModal';
 import AdminDashboard from './pages/AdminDashboard';
 import FloatingSupportButton from './components/FloatingSupportButton';
-import { useSteamCatalog } from './hooks/useSteamCatalog';
-import { Plus } from 'lucide-react';
 
 const isAdminPath = window.location.pathname === '/admin';
 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
-  const [showImport, setShowImport] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const { catalog, addGame, removeGame } = useSteamCatalog();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -53,9 +47,6 @@ export default function App() {
         <FeaturedDeals />
         <GameCategories onSelectCategory={(c) => { setSelectedCategory(c); setShowSearch(false); }} />
         <FeaturedGames searchQuery="" externalCategory={selectedCategory} />
-        {catalog.length > 0 && (
-          <StoreCatalog catalog={catalog} onRemove={removeGame} isAdmin={true} />
-        )}
         <WhyChooseUs />
         <Stats />
         <OrderProcess />
@@ -68,22 +59,8 @@ export default function App() {
       <Footer />
       <TelegramButton />
 
-      <button
-        onClick={() => setShowImport(true)}
-        title="Import game from Steam"
-        className="fixed bottom-24 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#1b2838] to-[#2a475e] border border-[#66c0f4]/40 text-[#66c0f4] font-rajdhani font-bold text-xs uppercase tracking-wider shadow-lg hover:border-[#66c0f4]/80 hover:shadow-[0_0_20px_rgba(102,192,244,0.25)] hover:-translate-y-0.5 transition-all duration-300"
-      >
-        <Plus className="w-4 h-4" /> Add Steam Game
-      </button>
-
-      {showImport && (
-        <SteamImport
-          onAdd={(data, price, origPrice, badge) => addGame(data, price, origPrice, badge)}
-          onClose={() => setShowImport(false)}
-        />
-      )}
       {showSearch && (
-        <SearchModal catalog={catalog} onClose={() => setShowSearch(false)} />
+        <SearchModal onClose={() => setShowSearch(false)} />
       )}
 
       <FloatingSupportButton />

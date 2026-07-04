@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Search, ShoppingCart, Star, Instagram, Send, SlidersHorizontal } from 'lucide-react';
 import games from '../data/games';
-import type { CatalogEntry } from '../hooks/useSteamCatalog';
 import CheckoutModal from './CheckoutModal';
 
 const INSTAGRAM_URL = 'https://instagram.com/jhojha.games';
@@ -21,46 +20,28 @@ interface UnifiedGame {
   description: string;
 }
 
-function toUnified(catalog: CatalogEntry[]): UnifiedGame[] {
-  return catalog.map(c => ({
-    uid: c.uid,
-    title: c.title,
-    category: 'Steam',
-    image: c.image,
-    salePrice: c.jhojhaPrice,
-    originalPrice: c.jhojhaOriginalPrice,
-    discount: Math.round((1 - c.jhojhaPrice / c.jhojhaOriginalPrice) * 100),
-    badge: c.badge,
-    description: c.description,
-  }));
-}
-
 interface Props {
-  catalog: CatalogEntry[];
   onClose: () => void;
 }
 
-export default function SearchModal({ catalog, onClose }: Props) {
+export default function SearchModal({ onClose }: Props) {
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [checkout, setCheckout] = useState<{ title: string; price: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const allGames: UnifiedGame[] = useMemo(() => [
-    ...games.map(g => ({
-      uid: String(g.id),
-      title: g.title,
-      category: g.category,
-      image: g.image,
-      salePrice: g.salePrice,
-      originalPrice: g.originalPrice,
-      discount: g.discount,
-      badge: g.badge,
-      description: g.description,
-    })),
-    ...toUnified(catalog),
-  ], [catalog]);
+  const allGames: UnifiedGame[] = useMemo(() => games.map(g => ({
+    uid: String(g.id),
+    title: g.title,
+    category: g.category,
+    image: g.image,
+    salePrice: g.salePrice,
+    originalPrice: g.originalPrice,
+    discount: g.discount,
+    badge: g.badge,
+    description: g.description,
+  })), []);
 
   const suggestions = useMemo(() => {
     if (query.trim().length < 2) return [];

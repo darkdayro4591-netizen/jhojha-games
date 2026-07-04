@@ -3,12 +3,12 @@
 // `src/data/games.ts`. Never trust a client-supplied price for these games;
 // always look up the expected amount here before creating/verifying an order.
 //
-// Games that are not in this list (e.g. dynamically added via the Steam
-// import/admin catalog tool) are not statically known ahead of time. For
-// those, the server trusts the client-reported amount since there is no
-// payment gateway to independently verify it against — the admin must
-// manually confirm the amount received matches the order before marking it
-// Verified.
+// Every game sold on the site comes from this manually curated catalog —
+// there is no automated import from any third-party source. If a game name
+// somehow isn't in this list, the server trusts the client-reported amount
+// since there is no payment gateway to independently verify it against — the
+// admin must manually confirm the amount received matches the order before
+// marking it Verified.
 const GAME_PRICES = {
   'GTA VI Pre-Order Standard Edition': 5999,
   'The Last of Us Part I': 279,

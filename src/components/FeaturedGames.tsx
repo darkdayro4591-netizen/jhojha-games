@@ -43,15 +43,15 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 mb-4">
             <span className="text-yellow-500 text-xs font-rajdhani font-700 uppercase tracking-widest">
-              Featured Titles
+              Game Catalog
             </span>
           </div>
           <h2 className="font-orbitron text-3xl sm:text-4xl lg:text-5xl font-black mb-3">
-            <span className="text-white">FEATURED </span>
-            <span className="text-yellow-500 gold-glow">GAMES</span>
+            <span className="text-white">GAME </span>
+            <span className="text-yellow-500 gold-glow">CATALOG</span>
           </h2>
           <p className="text-gray-400 font-rajdhani text-lg uppercase tracking-wider">
-            Premium titles at unbeatable prices
+            Premium titles at unbeatable prices — curated by Jhojha Games
           </p>
         </div>
 

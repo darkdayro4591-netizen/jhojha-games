@@ -11,12 +11,6 @@ export default defineConfig({
     port: 5000,
     allowedHosts: true,
     proxy: {
-      '/api/steam': {
-        target: 'https://store.steampowered.com/api',
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/api\/steam/, ''),
-      },
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
