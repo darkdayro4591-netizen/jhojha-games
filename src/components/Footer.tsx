@@ -6,6 +6,19 @@ const footerLinks = {
   Categories: ['Action', 'Open World', 'Horror', 'Racing', 'RPG', 'Multiplayer'],
 };
 
+function getFooterHref(link: string) {
+  if (link === 'Privacy Policy') return '/privacy-policy';
+  if (link === 'Terms & Conditions') return '/terms-and-conditions';
+  if (link === 'Home') return '#home';
+  if (link === 'Games') return '#games';
+  if (link === 'Deals') return '#deals';
+  if (link === 'Reviews') return '#reviews';
+  if (link === 'FAQ') return '#faq';
+  if (link === 'Need Help') return '#help';
+  if (link === 'Contact') return '#contact';
+  return '#';
+}
+
 export default function Footer() {
   return (
     <footer className="relative border-t border-yellow-500/10 bg-black overflow-hidden">
@@ -60,7 +73,7 @@ export default function Footer() {
                 {links.map(link => (
                   <li key={link}>
                     <a
-                      href={link === 'Home' ? '#home' : link === 'Games' ? '#games' : link === 'Deals' ? '#deals' : link === 'Reviews' ? '#reviews' : link === 'FAQ' ? '#faq' : link === 'Need Help' ? '#help' : link === 'Contact' ? '#contact' : '#'}
+                      href={getFooterHref(link)}
                       className="text-gray-400 font-inter text-sm hover:text-yellow-500 transition-colors duration-300"
                     >
                       {link}

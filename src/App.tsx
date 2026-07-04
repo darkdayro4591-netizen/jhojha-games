@@ -17,9 +17,13 @@ import Footer from './components/Footer';
 import TelegramButton from './components/TelegramButton';
 import SearchModal from './components/SearchModal';
 import AdminDashboard from './pages/AdminDashboard';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
 import FloatingSupportButton from './components/FloatingSupportButton';
 
 const isAdminPath = window.location.pathname === '/admin';
+const isPrivacyPolicyPath = window.location.pathname === '/privacy-policy';
+const isTermsPath = window.location.pathname === '/terms-and-conditions';
 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
@@ -37,6 +41,8 @@ export default function App() {
   }, []);
 
   if (isAdminPath) return <AdminDashboard />;
+  if (isPrivacyPolicyPath) return <PrivacyPolicy />;
+  if (isTermsPath) return <TermsAndConditions />;
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">

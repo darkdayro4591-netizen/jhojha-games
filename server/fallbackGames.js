@@ -1,0 +1,186 @@
+function mergeCatalog(rows = []) {
+  const baseRows = Array.isArray(rows) ? rows : [];
+  const merged = [...baseRows];
+  const seenIds = new Set(baseRows.map(row => Number(row.id)).filter(Boolean));
+
+  fallbackGames.forEach(game => {
+    const gameId = Number(game.id);
+    if (!seenIds.has(gameId)) {
+      merged.push(game);
+      seenIds.add(gameId);
+    }
+  });
+
+  return merged.sort((a, b) => {
+    const orderA = Number(a.sort_order ?? 0);
+    const orderB = Number(b.sort_order ?? 0);
+    if (orderA !== orderB) return orderA - orderB;
+    return (Number(a.id) || 0) - (Number(b.id) || 0);
+  });
+}
+
+const fallbackGames = [
+  {
+    id: 1,
+    title: 'GTA VI Pre-Order',
+    category: 'Action',
+    image_url: '/gta6-cover.jpeg',
+    sale_price: 5999,
+    original_price: 7999,
+    discount: 25,
+    rating: 5,
+    badge: 'PRE-ORDER',
+    description: 'Pre-order Grand Theft Auto VI and get access to upcoming bonus content and launch perks.',
+    steam_url: null,
+    is_featured: true,
+    in_stock: true,
+    sort_order: 1,
+  },
+  {
+    id: 2,
+    title: 'The Last of Us Part I',
+    category: 'RPG',
+    image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1888930/library_600x900.jpg',
+    sale_price: 279,
+    original_price: 999,
+    discount: 72,
+    rating: 5,
+    badge: null,
+    description: 'Experience the emotional journey of Joel and Ellie in this acclaimed survival adventure.',
+    steam_url: 'https://store.steampowered.com/app/1888930/The_Last_of_Us_Part_I/',
+    is_featured: true,
+    in_stock: true,
+    sort_order: 2,
+  },
+  {
+    id: 3,
+    title: 'The Last of Us Part II',
+    category: 'RPG',
+    image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2531310/library_600x900.jpg',
+    sale_price: 329,
+    original_price: 1299,
+    discount: 75,
+    rating: 5,
+    badge: null,
+    description: 'Continue the gripping survival story with Ellie in this intense sequel.',
+    steam_url: 'https://store.steampowered.com/app/2531310/The_Last_of_Us_Part_II/',
+    is_featured: true,
+    in_stock: true,
+    sort_order: 3,
+  },
+  {
+    id: 4,
+    title: 'Resident Evil 4',
+    category: 'Horror',
+    image_url: '/re-requiem-cover.jpeg',
+    sale_price: 499,
+    original_price: 1999,
+    discount: 75,
+    rating: 5,
+    badge: null,
+    description: 'A tense survival-horror classic with action-heavy combat and atmospheric terror.',
+    steam_url: null,
+    is_featured: false,
+    in_stock: true,
+    sort_order: 4,
+  },
+  {
+    id: 5,
+    title: 'Resident Evil Village',
+    category: 'Horror',
+    image_url: '/re-requiem-cover.jpeg',
+    sale_price: 549,
+    original_price: 1999,
+    discount: 72,
+    rating: 5,
+    badge: null,
+    description: 'Return to a gothic village full of horror, mystery, and relentless enemies.',
+    steam_url: null,
+    is_featured: false,
+    in_stock: true,
+    sort_order: 5,
+  },
+  {
+    id: 6,
+    title: 'God of War',
+    category: 'Action',
+    image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1593500/library_600x900.jpg',
+    sale_price: 699,
+    original_price: 1999,
+    discount: 65,
+    rating: 5,
+    badge: 'HOT DEAL',
+    description: 'Join Kratos on a brutal and emotional journey through Norse mythology.',
+    steam_url: 'https://store.steampowered.com/app/1593500/God_of_War/',
+    is_featured: true,
+    in_stock: true,
+    sort_order: 6,
+  },
+  {
+    id: 7,
+    title: 'God of War Ragnarök',
+    category: 'Action',
+    image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2322010/library_600x900.jpg',
+    sale_price: 899,
+    original_price: 2499,
+    discount: 64,
+    rating: 5,
+    badge: 'NEW',
+    description: 'The epic continuation of Kratos and Atreus in the Norse saga.',
+    steam_url: 'https://store.steampowered.com/app/2322010/God_of_War_Ragnarok/',
+    is_featured: true,
+    in_stock: true,
+    sort_order: 7,
+  },
+  {
+    id: 8,
+    title: 'Outlast Trials',
+    category: 'Horror',
+    image_url: '/outlast-trials-cover.jpeg',
+    sale_price: 499,
+    original_price: 1799,
+    discount: 72,
+    rating: 4,
+    badge: null,
+    description: 'Survive the Murkoff Corporation’s twisted experiments in this terrifying co-op horror experience.',
+    steam_url: null,
+    is_featured: false,
+    in_stock: true,
+    sort_order: 8,
+  },
+  {
+    id: 9,
+    title: 'Forza Horizon Series',
+    category: 'Racing',
+    image_url: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900.jpg',
+    sale_price: 349,
+    original_price: 1599,
+    discount: 78,
+    rating: 5,
+    badge: null,
+    description: 'The latest Forza Horizon installment with hundreds of cars and open-world racing.',
+    steam_url: 'https://store.steampowered.com/app/1551360/Forza_Horizon_5/',
+    is_featured: false,
+    in_stock: true,
+    sort_order: 9,
+  },
+  {
+    id: 10,
+    title: "Assassin's Creed Black Flag Resynced",
+    category: 'Open World',
+    image_url: '/ac-black-flag-cover.jpeg',
+    sale_price: 799,
+    original_price: 1499,
+    discount: 47,
+    rating: 4,
+    badge: 'PRE-ORDER',
+    description: 'Sail the Caribbean as Edward Kenway in this remastered pirate adventure.',
+    steam_url: null,
+    is_featured: true,
+    in_stock: true,
+    sort_order: 10,
+  },
+];
+
+module.exports = fallbackGames;
+module.exports.mergeCatalog = mergeCatalog;

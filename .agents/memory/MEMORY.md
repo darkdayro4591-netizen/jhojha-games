@@ -1,0 +1,3 @@
+- [OCR verification security](ocr-verification-security.md) — OCR results must be server-signed (HMAC); never trust client-supplied verification_mode.
+- [Order status model](order-status-model.md) — six statuses: auto_matched, pending_review, pending, verified, rejected, failed — each with distinct meaning.
+- [Game price catalog](game-price-catalog.md) — server/gamePrices.js is the single source of truth; always validate submitted amounts against it server-side.

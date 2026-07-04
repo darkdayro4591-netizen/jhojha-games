@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Search, Send, Instagram } from 'lucide-react';
+import { Menu, X, Search, Send, Instagram, ShieldCheck } from 'lucide-react';
 
 const navLinks = [
   { label: 'Home', href: '#home' },
@@ -19,6 +19,7 @@ export default function Navbar({ onSearchOpen }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [ownerAuthed, setOwnerAuthed] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,8 +33,16 @@ export default function Navbar({ onSearchOpen }: NavbarProps) {
         }
       }
     };
+    const syncOwnerState = () => {
+      setOwnerAuthed(sessionStorage.getItem('jhojha_owner_session') === '1');
+    };
+    syncOwnerState();
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('owner-login-status', syncOwnerState);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('owner-login-status', syncOwnerState);
+    };
   }, []);
 
   const handleNavClick = (href: string) => {
@@ -79,6 +88,11 @@ export default function Navbar({ onSearchOpen }: NavbarProps) {
             <a href="https://t.me/JhojhaGames" target="_blank" rel="noopener noreferrer" className="btn-gold px-5 py-2.5 rounded-lg text-sm font-rajdhani font-700 uppercase tracking-wider flex items-center gap-2">
               <Send className="w-4 h-4" /> Join
             </a>
+            {ownerAuthed && (
+              <a href="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg border border-yellow-500/20 bg-yellow-500/10 text-yellow-500 text-sm font-rajdhani font-700 uppercase tracking-widest" aria-label="Owner dashboard">
+                <ShieldCheck className="w-4 h-4" /> Owner
+              </a>
+            )}
           </div>
 
           <div className="flex lg:hidden items-center gap-2">
@@ -112,6 +126,15 @@ export default function Navbar({ onSearchOpen }: NavbarProps) {
             <a href="https://t.me/JhojhaGames" target="_blank" rel="noopener noreferrer" className="flex-1 btn-gold text-center px-4 py-3 rounded-lg text-sm font-rajdhani font-700 uppercase tracking-wider flex items-center justify-center gap-2">
               <Send className="w-4 h-4" /> Join
             </a>
+          </div>
+          {ownerAuthed && (
+            <div className="mt-3">
+              <a href="/admin" className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 text-yellow-500 text-sm font-rajdhani font-700 uppercase tracking-widest">
+                <ShieldCheck className="w-4 h-4" /> Owner Dashboard
+              </a>
+            </div>
+          )}
+          <div className="flex gap-3 mt-3">
           </div>
         </div>
       </div>

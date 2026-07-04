@@ -1,0 +1,89 @@
+Perform a full website audit and fix all bugs, glitches, broken links, UI issues, console errors, responsiveness issues, payment issues, and performance problems.
+
+SECURITY IMPROVEMENTS
+
+- Validate all user inputs.
+- Sanitize form submissions.
+- Prevent duplicate orders.
+- Prevent spam submissions.
+- Prevent fake price manipulation.
+- Prevent users from changing game prices in browser developer tools.
+- Prevent negative prices and invalid order amounts.
+- Secure all checkout and order forms.
+- Add rate limiting to forms.
+- Add error handling and logging.
+
+PAYMENT SYSTEM
+
+- Ensure selected game name and price are locked during checkout.
+- Automatically pass game name and exact price to checkout.
+- Prevent users from modifying order values.
+- Reject invalid orders.
+- Show clear payment status messages.
+- Improve checkout reliability and mobile support.
+
+ADMIN PANEL
+
+Create a hidden admin panel accessible only by website owner.
+
+Requirements:
+
+- Password protected.
+- Admin login page hidden from normal visitors.
+- Session timeout after inactivity.
+- Secure logout button.
+
+ADMIN FEATURES
+
+- Add New Game
+- Edit Existing Game
+- Delete Game
+- Change Prices
+- Change Sale Prices
+- Change Game Posters
+- Update Categories
+- Mark Featured Games
+- Update Stock Status
+
+QUICK ADD SYSTEM
+
+Create a shortcut form:
+
+Fields:
+- Game Name
+- Original Price
+- Sale Price
+- Steam URL (optional)
+- Game Poster URL (optional)
+- Category
+- Badge
+
+Button:
+Add Game
+
+When submitted:
+- Automatically create a new game card.
+- Automatically add the game to search results.
+- Automatically add the game to Featured Deals if selected.
+- Automatically update the catalog.
+
+SEARCH SYSTEM
+
+- Fix search bugs.
+- Ensure all newly added games appear instantly in search.
+- Improve search speed.
+
+UI IMPROVEMENTS
+
+- Fix layout issues.
+- Fix mobile responsiveness.
+- Fix image loading issues.
+- Fix broken buttons.
+- Fix navigation links.
+- Improve page loading speed.
+
+OWNER ACCESS
+
+Create a secure owner-only dashboard for managing the store without editing code manually.
+
+Use the existing black and gold Jhojha Games theme.

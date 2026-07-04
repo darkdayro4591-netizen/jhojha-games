@@ -1,12 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ShoppingCart, Star, Eye, X, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Star, Eye, X, ArrowRight, Loader2 } from 'lucide-react';
 import CheckoutModal from './CheckoutModal';
-import games from '../data/games';
-import type { Game } from '../data/games';
+import { useGames } from '../hooks/useGames';
+import type { Game } from '../hooks/useGames';
 export type { Game };
-export { games };
 
-const categories = ['All', 'Action', 'Open World', 'Horror', 'Racing', 'RPG', 'Multiplayer'];
+const baseCategories = ['All', 'Action', 'Open World', 'Horror', 'Racing', 'RPG', 'Multiplayer'];
 
 interface FeaturedGamesProps {
   searchQuery: string;
@@ -14,24 +13,31 @@ interface FeaturedGamesProps {
 }
 
 export default function FeaturedGames({ searchQuery, externalCategory }: FeaturedGamesProps) {
+  const { games, loading } = useGames();
   const [activeCategory, setActiveCategory] = useState(externalCategory || 'All');
 
   useEffect(() => {
     if (externalCategory) setActiveCategory(externalCategory);
   }, [externalCategory]);
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
-  const [checkoutGame, setCheckoutGame] = useState<Game | null>(null);
+
+  const [selectedGame,  setSelectedGame]  = useState<Game | null>(null);
+  const [checkoutGame,  setCheckoutGame]  = useState<Game | null>(null);
+
+  const categories = useMemo(() => {
+    const unique = Array.from(new Set(games.map(g => g.category).filter(Boolean)));
+    return ['All', ...baseCategories.filter(c => unique.includes(c)), ...unique.filter(c => !baseCategories.includes(c))];
+  }, [games]);
 
   const filteredGames = useMemo(() => {
     return games.filter(g => {
       const matchesCategory = activeCategory === 'All' || g.category === activeCategory;
-      const matchesSearch =
+      const matchesSearch   =
         !searchQuery ||
         g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         g.category.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [games, activeCategory, searchQuery]);
 
   return (
     <section id="games" className="relative py-20 lg:py-28 overflow-hidden">
@@ -42,9 +48,7 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 mb-4">
-            <span className="text-yellow-500 text-xs font-rajdhani font-700 uppercase tracking-widest">
-              Game Catalog
-            </span>
+            <span className="text-yellow-500 text-xs font-rajdhani font-700 uppercase tracking-widest">Game Catalog</span>
           </div>
           <h2 className="font-orbitron text-3xl sm:text-4xl lg:text-5xl font-black mb-3">
             <span className="text-white">GAME </span>
@@ -72,20 +76,30 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
           ))}
         </div>
 
+        {/* Loading */}
+        {loading && (
+          <div className="flex items-center justify-center py-24 gap-3 text-yellow-500">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span className="font-rajdhani text-sm uppercase tracking-widest">Loading catalog…</span>
+          </div>
+        )}
+
         {/* Games Grid */}
-        {filteredGames.length === 0 ? (
+        {!loading && filteredGames.length === 0 && (
           <div className="text-center py-20">
             <p className="text-gray-500 font-rajdhani text-lg uppercase tracking-wider">
               No games found matching your search
             </p>
           </div>
-        ) : (
+        )}
+
+        {!loading && filteredGames.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {filteredGames.map((game, idx) => (
               <div
                 key={game.id}
                 className="game-card gold-hover-card group relative rounded-2xl overflow-hidden bg-gradient-to-b from-[#1A1A1A] to-[#0F0F0F] border border-yellow-500/10 shimmer-sweep"
-                style={{ animation: `fadeInUp 0.6s ease ${idx * 0.1}s both` }}
+                style={{ animation: `fadeInUp 0.6s ease ${idx * 0.08}s both` }}
               >
                 {/* Image */}
                 <div className="relative h-56 overflow-hidden">
@@ -94,6 +108,7 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
                     alt={game.title}
                     loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/400x300/111/FFD700?text=Game'; }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
@@ -122,35 +137,37 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
                   >
                     <Eye className="w-4 h-4" />
                   </button>
+
+                  {/* Out-of-stock overlay */}
+                  {!game.inStock && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <span className="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400 font-rajdhani font-bold uppercase tracking-widest text-sm">
+                        Out of Stock
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
                 <div className="p-5">
-                  <span className="text-xs font-rajdhani font-600 uppercase tracking-widest text-yellow-500/70">
-                    {game.category}
-                  </span>
+                  <span className="text-xs font-rajdhani font-600 uppercase tracking-widest text-yellow-500/70">{game.category}</span>
                   <h3 className="mt-1 font-rajdhani text-xl font-700 text-white group-hover:text-yellow-500 transition-colors duration-300">
                     {game.title}
                   </h3>
 
-                  {/* Price */}
                   <div className="flex items-center gap-3 mt-4">
-                    <span className="font-orbitron text-2xl font-black text-yellow-500">
-                      ₹{game.salePrice}
-                    </span>
-                    <span className="text-sm text-gray-500 line-through font-inter">
-                      ₹{game.originalPrice}
-                    </span>
+                    <span className="font-orbitron text-2xl font-black text-yellow-500">₹{game.salePrice.toLocaleString('en-IN')}</span>
+                    <span className="text-sm text-gray-500 line-through font-inter">₹{game.originalPrice.toLocaleString('en-IN')}</span>
                   </div>
 
-                  {/* Action buttons */}
                   <div className="mt-4 flex gap-2">
                     <button
-                      onClick={() => setCheckoutGame(game)}
-                      className="order-btn flex-1 py-3 rounded-lg font-rajdhani text-sm font-700 uppercase tracking-widest flex items-center justify-center gap-2"
+                      onClick={() => game.inStock && setCheckoutGame(game)}
+                      disabled={!game.inStock}
+                      className={`order-btn flex-1 py-3 rounded-lg font-rajdhani text-sm font-700 uppercase tracking-widest flex items-center justify-center gap-2 ${!game.inStock ? 'opacity-40 cursor-not-allowed' : ''}`}
                     >
                       <ShoppingCart className="w-4 h-4" />
-                      Order Now
+                      {game.inStock ? 'Order Now' : 'Unavailable'}
                     </button>
                     <button
                       onClick={() => setSelectedGame(game)}
@@ -195,12 +212,15 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
             </button>
 
             <div className="relative h-64 overflow-hidden">
-              <img src={selectedGame.image} alt={selectedGame.title} className="w-full h-full object-cover" />
+              <img
+                src={selectedGame.image}
+                alt={selectedGame.title}
+                className="w-full h-full object-cover"
+                onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x300/111/FFD700?text=Game'; }}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-transparent to-transparent" />
               <div className="absolute bottom-4 left-5">
-                <span className="text-xs font-rajdhani font-600 uppercase tracking-widest text-yellow-500">
-                  {selectedGame.category}
-                </span>
+                <span className="text-xs font-rajdhani font-600 uppercase tracking-widest text-yellow-500">{selectedGame.category}</span>
                 <h3 className="font-rajdhani text-2xl font-700 text-white">{selectedGame.title}</h3>
               </div>
             </div>
@@ -208,10 +228,7 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-4 h-4 ${i < selectedGame.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}`}
-                  />
+                  <Star key={i} className={`w-4 h-4 ${i < selectedGame.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}`} />
                 ))}
                 <span className="text-sm text-gray-400 ml-2">{selectedGame.rating}.0 / 5.0</span>
               </div>
@@ -219,23 +236,25 @@ export default function FeaturedGames({ searchQuery, externalCategory }: Feature
               <p className="text-gray-300 font-inter leading-relaxed mb-6">{selectedGame.description}</p>
 
               <div className="flex items-center gap-4 mb-6">
-                <span className="font-orbitron text-3xl font-black text-yellow-500">
-                  ₹{selectedGame.salePrice}
-                </span>
-                <span className="text-base text-gray-500 line-through">₹{selectedGame.originalPrice}</span>
+                <span className="font-orbitron text-3xl font-black text-yellow-500">₹{selectedGame.salePrice.toLocaleString('en-IN')}</span>
+                <span className="text-base text-gray-500 line-through">₹{selectedGame.originalPrice.toLocaleString('en-IN')}</span>
                 <span className="badge-sale px-3 py-1 rounded-md font-rajdhani uppercase tracking-wider text-sm">
                   Save {selectedGame.discount}%
                 </span>
               </div>
 
-              <button
-                onClick={() => { setSelectedGame(null); setCheckoutGame(selectedGame); }}
-                className="order-btn w-full py-4 rounded-lg font-rajdhani text-base font-700 uppercase tracking-widest flex items-center justify-center gap-2"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                Order Now
-                <ArrowRight className="w-5 h-5" />
-              </button>
+              {selectedGame.inStock ? (
+                <button
+                  onClick={() => { setSelectedGame(null); setCheckoutGame(selectedGame); }}
+                  className="order-btn w-full py-4 rounded-lg font-rajdhani text-base font-700 uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="w-5 h-5" /> Order Now <ArrowRight className="w-5 h-5" />
+                </button>
+              ) : (
+                <div className="w-full py-4 rounded-lg bg-white/5 border border-white/10 text-center text-gray-500 font-rajdhani font-bold uppercase tracking-widest">
+                  Currently Unavailable
+                </div>
+              )}
             </div>
           </div>
         </div>

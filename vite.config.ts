@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5000,
-    allowedHosts: true,
+    allowedHosts: ['jhojhagames.com', 'www.jhojhagames.com', 'localhost', '127.0.0.1'],
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
@@ -17,5 +17,10 @@ export default defineConfig({
         secure: false,
       },
     },
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+    allowedHosts: ['jhojhagames.com', 'www.jhojhagames.com', 'localhost', '127.0.0.1'],
   },
 });
