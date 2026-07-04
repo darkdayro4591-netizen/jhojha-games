@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { MessageCircle, Instagram, Send, X, Headphones } from 'lucide-react';
+import { Instagram, Send, X, Headphones } from 'lucide-react';
 
 const INSTAGRAM_URL = 'https://www.instagram.com/jhojha.games?igsh=ZGltczl3MHh0ZTN1';
 const TELEGRAM_URL  = 'https://t.me/jhojhagames';
-const WHATSAPP_URL  = 'https://wa.me/919999999999';
 
 export default function FloatingSupportButton() {
   const [open, setOpen] = useState(false);

@@ -47,14 +47,6 @@ export default function Footer() {
               >
                 <Send className="w-5 h-5" />
               </a>
-              <a
-                href="https://wa.me/919999999999"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-lg bg-white/5 border border-yellow-500/20 flex items-center justify-center text-gray-400 hover:text-yellow-500 hover:border-yellow-500/50 hover:bg-yellow-500/10 transition-all duration-300"
-              >
-                <Gamepad2 className="w-5 h-5" />
-              </a>
             </div>
           </div>
 
