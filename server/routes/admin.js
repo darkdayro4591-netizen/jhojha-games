@@ -263,3 +263,17 @@ router.delete('/games/:id', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+Improve payment verification without using any payment gateway.
+
+1. Require payment screenshot upload.
+2. Require transaction/reference ID.
+3. Require payer UPI name.
+4. Require exact payment amount.
+5. Reject duplicate transaction IDs.
+6. Store all transaction IDs in database.
+7. Compare amount with order total.
+8. Mark orders as PENDING until manually approved.
+9. Show clear reason when verification fails.
+10. Log all submissions for admin review.
+11. Prevent users from submitting the same transaction ID twice.
+12. Require all fields before order submission.
