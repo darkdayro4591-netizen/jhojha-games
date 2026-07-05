@@ -263,3 +263,20 @@ router.delete('/games/:id', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+Fix the "Network error — please try again" issue in the admin panel.
+
+Requirements:
+1. Add detailed error logging in browser console.
+2. Verify database connection before saving.
+3. Show the exact error message instead of generic "Network error".
+4. Validate all required fields before submit.
+5. Retry failed requests automatically up to 3 times.
+6. Check API URL and environment variables.
+7. Ensure CORS is configured correctly.
+8. Verify the games table/collection exists.
+9. Add loading and success states.
+10. Prevent form submission if backend connection is unavailable.
+
+If using Supabase, test INSERT permissions and RLS policies.
+If using Firebase, verify Firestore rules.
+Output all errors in console and UI for debugging.
