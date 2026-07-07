@@ -48,6 +48,7 @@ const CATEGORIES = ['Action', 'Open World', 'Horror', 'Racing', 'RPG', 'Multipla
 const BADGES     = ['', 'PRE-ORDER', 'SALE', 'HOT DEAL', 'BEST SELLER', 'NEW'];
 
 const STATUS_STYLES: Record<string, string> = {
+  approved:       'text-green-400 bg-green-500/10 border-green-500/30',
   verified:       'text-green-400 bg-green-500/10 border-green-500/30',
   auto_matched:   'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
   pending:        'text-yellow-400 bg-yellow-500/10 border-yellow-500/30',
@@ -57,6 +58,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const STATUS_ICON: Record<string, React.ReactNode> = {
+  approved:       <CheckCircle2 className="w-3 h-3" />,
   verified:       <CheckCircle2 className="w-3 h-3" />,
   auto_matched:   <Zap className="w-3 h-3" />,
   pending:        <Clock className="w-3 h-3" />,
@@ -66,6 +68,7 @@ const STATUS_ICON: Record<string, React.ReactNode> = {
 };
 
 const STATUS_LABEL: Record<string, string> = {
+  approved: 'Approved',
   verified: 'Verified', auto_matched: 'Auto-Matched', pending: 'Pending',
   pending_review: 'Pending Review', rejected: 'Rejected', failed: 'Failed',
 };
